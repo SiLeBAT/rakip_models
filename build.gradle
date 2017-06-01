@@ -19,6 +19,11 @@ repositories {
     flatDir { dirs 'deps' }
 }
 
+task getDeps(type: Copy) {
+    from sourceSets.main.runtimeClasspath
+    into 'runtime/'
+}
+
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.8.7"
