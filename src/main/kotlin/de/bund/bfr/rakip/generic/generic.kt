@@ -25,10 +25,10 @@ import java.util.*
  */
 data class ModelCategory(
         var modelClass: String,
-        val modelSubClass: List<String> = listOf(),
+        val modelSubClass: MutableList<String> = mutableListOf(),
         var modelClassComment: String? = null,
-        val modelSubSubClass: List<String> = listOf(),
-        val basicProcess: List<String> = listOf()
+        val modelSubSubClass: MutableList<String> = mutableListOf(),
+        val basicProcess: MutableList<String> = mutableListOf()
 )
 
 /**
@@ -42,12 +42,12 @@ data class GeneralInformation(
         var identifier: String,
         val creators: MutableList<VCard> = mutableListOf(),
         var creationDate: Date,
-        val modificationDate: List<Date> = listOf(),
+        val modificationDate: MutableList<Date> = mutableListOf(),
         var rights: String,
         var isAvailable: Boolean,
         var url: URL,
         var format: String? = null,
-        val reference: List<Record> = listOf(),
+        val reference: MutableList<Record> = mutableListOf(),
         var language: String? = null,
         var software: String? = null,
         var languageWrittenIn: String? = null,
@@ -61,8 +61,8 @@ data class Product(
         var environmentName: String,
         var environmentDescription: String? = null,
         var environmentUnit: String,
-        val methodOfProduction: List<String> = listOf(),
-        val packaging: List<String> = listOf(),
+        val methodOfProduction: MutableList<String> = mutableListOf(),
+        val packaging: MutableList<String> = mutableListOf(),
         var countryOfOrigin: String? = null,
         var areaOfOrigin: String? = null,
         var fisheriesArea: String? = null,
@@ -103,17 +103,17 @@ data class Hazard(
 data class PopulationGroup(
         var populationName: String,
         var targetPopulation: String? = null,
-        val populationSpan: List<String> = listOf(),
-        val populationDescription: List<String> = listOf(),
-        val populationAge: List<String> = listOf(),
+        val populationSpan: MutableList<String> = mutableListOf(),
+        val populationDescription: MutableList<String> = mutableListOf(),
+        val populationAge: MutableList<String> = mutableListOf(),
         var populationGender: String? = null,
-        val bmi: List<String> = listOf(),
-        val specialDietGroups: List<String> = listOf(),
-        val patternConsumption: List<String> = listOf(),
-        val region: List<String> = listOf(),
-        val country: List<String> = listOf(),
-        val populationRiskFactor: List<String> = listOf(),
-        val season: List<String> = listOf()
+        val bmi: MutableList<String> = mutableListOf(),
+        val specialDietGroups: MutableList<String> = mutableListOf(),
+        val patternConsumption: MutableList<String> = mutableListOf(),
+        val region: MutableList<String> = mutableListOf(),
+        val country: MutableList<String> = mutableListOf(),
+        val populationRiskFactor: MutableList<String> = mutableListOf(),
+        val season: MutableList<String> = mutableListOf()
 )
 
 /**
@@ -128,8 +128,8 @@ data class Scope(
         var populationGroup: PopulationGroup? = null,
         var generalComment: String? = null,
         var temporalInformation: String? = null,
-        val region: List<String> = listOf(),
-        val country: List<String> = listOf()
+        val region: MutableList<String> = mutableListOf(),
+        val country: MutableList<String> = mutableListOf()
 )
 
 /**
@@ -186,9 +186,9 @@ data class DietaryAssessmentMethod(
         var collectionTool: String,
         var numberOfNonConsecutiveOneDay: Int,
         var softwareTool: String? = null,
-        val numberOfFoodItems: List<String> = listOf(),
-        val recordTypes: List<String> = listOf(),
-        val foodDescriptors: List<String> = listOf()
+        val numberOfFoodItems: MutableList<String> = mutableListOf(),
+        val recordTypes: MutableList<String> = mutableListOf(),
+        val foodDescriptors: MutableList<String> = mutableListOf()
 )
 
 data class Assay(var name: String, var description: String? = null)
@@ -197,7 +197,7 @@ data class DataBackground(
         var study: Study? = null,
         var studySample: StudySample? = null,
         val dietaryAssessmentMethod: DietaryAssessmentMethod? = null,
-        val laboratoryAccreditation: List<String> = listOf(),
+        val laboratoryAccreditation: MutableList<String> = mutableListOf(),
         var assay: Assay? = null
 )
 
@@ -217,7 +217,7 @@ data class Parameter(
         var varue: String? = null,
         var reference: String? = null,
         var variabilitySubject: String? = null,
-        val modelApplicability: List<String> = listOf(),
+        val modelApplicability: MutableList<String> = mutableListOf(),
         var error: Double? = null
 )
 
@@ -235,7 +235,7 @@ data class ModelEquation(
 )
 
 data class ModelMath(
-        val parameter: List<Parameter> = listOf(),
+        val parameter: MutableList<Parameter> = mutableListOf(),
         var sse: Double? = null,
         var mse: Double? = null,
         var rmse: Double? = null,
@@ -245,7 +245,7 @@ data class ModelMath(
         var modelEquation: ModelEquation? = null,
         var fittingProcedure: String? = null,
         var exposure: Exposure? = null,
-        val event: List<String> = listOf()
+        val event: MutableList<String> = mutableListOf()
 )
 
 /**
@@ -276,7 +276,7 @@ data class Simulation(
         var simulatedModel: String,
         val parameterSettings: List<String> = listOf(),
         var description: String? = null,
-        val plotSettings: List<String> = listOf(),
+        val plotSettings: MutableList<String> = mutableListOf(),
         var visualizationScript: String? = null
 )
 
