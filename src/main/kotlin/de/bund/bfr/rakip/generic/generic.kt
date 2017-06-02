@@ -33,8 +33,19 @@ data class ModelCategory(
 
 /**
  * @property name Name given to the model or data
- * @property source Related resource from which the described resource is derived
- * ...
+ * @property source Related resource from which the resource is derived
+ * @property identifier Unambiguous ID given to the model or data
+ * @property creationDate Model creation date
+ * @property rights Rights held in over the resource
+ * @property isAvailable Availability of data or model
+ * @property url Web address referencing the resource location
+ * @property format Form of data (file extension)
+ * @property language Language of the resource
+ * @property software Program in which the model has been implemented
+ * @property languageWrittenIn  Language used to write the model
+ * @property status Curation status of the model
+ * @property objective Objective of the model or data
+ * @property description General description of the study, data or model
  */
 data class GeneralInformation(
         var name: String,
