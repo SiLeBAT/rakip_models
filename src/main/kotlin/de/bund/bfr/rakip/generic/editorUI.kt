@@ -2116,7 +2116,7 @@ class EditParameterPanel(parameter: Parameter? = null, isAdvanced: Boolean) : JP
     val applicabilityTextArea = JTextArea(5, 30)
 
     val errorLabel = createLabel(text = error, tooltip = errorTooltip)
-    val errorTextField = JTextField(30)
+    val errorSpinnerModel = createSpinnerDoubleModel()
 
     init {
 
@@ -2136,11 +2136,13 @@ class EditParameterPanel(parameter: Parameter? = null, isAdvanced: Boolean) : JP
                 Pair(first = referenceLabel, second = referenceTextField),
                 Pair(first = variabilitySubjectLabel, second = variabilitySubjectTextArea),
                 Pair(first = applicabilityLabel, second = applicabilityTextArea),
-                Pair(first = errorLabel, second = errorTextField)
+                Pair(first = errorLabel, second = createSpinner(errorSpinnerModel))
         )
 
         addGridComponents(pairs = pairList)
     }
+
+    // TODO: toParameter
 }
 
 class ParameterPanel(val parameters: MutableList<Parameter> = mutableListOf(), isAdvanced: Boolean) : JPanel(BorderLayout()) {
@@ -2258,8 +2260,12 @@ private fun createSpinner(spinnerModel: AbstractSpinnerModel) : JSpinner {
 /** Creates a SpinnerNumberModel for integers with no limits and initial value 0. */
 private fun createSpinnerIntegerModel() = SpinnerNumberModel(0, null, null, 1)
 
-///** Creates a SpinnerNumberModel for real numbers with no limits and initial value 0.0. */
-//private fun createSpinnerDoubleModel() = SpinnerNumberModel(0.0, null, null, .01)
+/** Creates a SpinnerNumberModel for real numbers with no limits and initial value 0.0. */
+private fun createSpinnerDoubleModel() = SpinnerNumberModel(0.0, null, null, .01)
 
-/** Creates a SpinnerNumberModel for percentages (doubles) and initial value 0.0. */
+/**
+ * Creates a SpinnerNumberModel for percentages (doubles) and initial value 0.0.
+ *
+ * Has limits 0.0 and 1.0.
+ * */
 private fun createSpinnerPercentageModel() = SpinnerNumberModel(0.0, 0.0, 1.0, .01)
