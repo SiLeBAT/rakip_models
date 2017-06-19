@@ -380,11 +380,10 @@ class ReferencePanel(val refs: MutableList<Record>, var isAdvanced: Boolean) : J
         // buttons
         val buttonsPanel = ButtonsPanel()
         buttonsPanel.addButton.addActionListener { _ ->
-            val editReferencePanel = EditReferencePanel(isAdvanced = isAdvanced)
-            val result = JOptionPane.showConfirmDialog(null, editReferencePanel, "Create reference",
-                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)
+            val editPanel = EditReferencePanel(isAdvanced = isAdvanced)
+            val result = showConfirmDialog(panel = editPanel, title = "Create reference")
             if (result == JOptionPane.OK_OPTION) {
-                dtm.addRow(arrayOf(editReferencePanel.toRecord()))
+                dtm.addRow(arrayOf(editPanel.toRecord()))
             }
         }
 
@@ -393,11 +392,10 @@ class ReferencePanel(val refs: MutableList<Record>, var isAdvanced: Boolean) : J
             if (rowToEdit != -1) {
                 val ref = dtm.getValueAt(rowToEdit, 0) as Record
 
-                val editReferencePanel = EditReferencePanel(ref, isAdvanced = isAdvanced)
-                val result = JOptionPane.showConfirmDialog(null, editReferencePanel, "Modify reference",
-                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)
+                val editPanel = EditReferencePanel(ref, isAdvanced = isAdvanced)
+                val result = showConfirmDialog(panel = editPanel, title = "Modify reference")
                 if (result == JOptionPane.OK_OPTION) {
-                    dtm.setValueAt(editReferencePanel.toRecord(), rowToEdit, 0)
+                    dtm.setValueAt(editPanel.toRecord(), rowToEdit, 0)
                 }
             }
         }
@@ -570,11 +568,10 @@ class CreatorPanel(val creators: MutableList<VCard>) : JPanel(BorderLayout()) {
         // buttons
         val buttonsPanel = ButtonsPanel()
         buttonsPanel.addButton.addActionListener { _ ->
-            val editCreatorPanel = EditCreatorPanel()
-            val result = JOptionPane.showConfirmDialog(null, editCreatorPanel, "Create creator",
-                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)
+            val editPanel = EditCreatorPanel()
+            val result = showConfirmDialog(panel = editPanel, title = "Create creator")
             if (result == JOptionPane.OK_OPTION) {
-                dtm.addRow(arrayOf(editCreatorPanel.toVCard()))
+                dtm.addRow(arrayOf(editPanel.toVCard()))
             }
         }
 
@@ -583,11 +580,10 @@ class CreatorPanel(val creators: MutableList<VCard>) : JPanel(BorderLayout()) {
             if (rowToEdit != -1) {
                 val creator = dtm.getValueAt(rowToEdit, 0) as VCard
 
-                val editCreatorPanel = EditCreatorPanel(creator)
-                val result = JOptionPane.showConfirmDialog(null, editCreatorPanel, "Modify creator",
-                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)
+                val editPanel = EditCreatorPanel(creator)
+                val result = showConfirmDialog(panel = editPanel, title = "Modify creator")
                 if (result == JOptionPane.OK_OPTION) {
-                    dtm.setValueAt(editCreatorPanel.toVCard(), rowToEdit, 0)
+                    dtm.setValueAt(editPanel.toVCard(), rowToEdit, 0)
                 }
             }
         }
@@ -686,11 +682,10 @@ class ScopePanel(val scope: Scope) : Box(BoxLayout.PAGE_AXIS) {
 
         productButton.toolTipText = "Click me to add a product"
         productButton.addActionListener { _ ->
-            val editProductPanel = EditProductPanel(product = scope.product, isAdvanced = advancedCheckBox.isSelected)
-            val result = JOptionPane.showConfirmDialog(null, editProductPanel, "Create a Product",
-                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)
+            val editPanel = EditProductPanel(product = scope.product, isAdvanced = advancedCheckBox.isSelected)
+            val result = showConfirmDialog(panel = editPanel, title = "Create a Product")
             if (result == JOptionPane.OK_OPTION) {
-                val product = editProductPanel.toProduct()
+                val product = editPanel.toProduct()
                 productButton.text = "${product.environmentName} [${product.environmentUnit}]"
                 scope.product = product
             }
@@ -698,11 +693,10 @@ class ScopePanel(val scope: Scope) : Box(BoxLayout.PAGE_AXIS) {
 
         hazardButton.toolTipText = "Click me to add a hazard"
         hazardButton.addActionListener { _ ->
-            val editHazardPanel = EditHazardPanel(hazard = scope.hazard, isAdvanced = advancedCheckBox.isSelected)
-            val result = JOptionPane.showConfirmDialog(null, editHazardPanel, "Create a Hazard",
-                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)
+            val editPanel = EditHazardPanel(hazard = scope.hazard, isAdvanced = advancedCheckBox.isSelected)
+            val result = showConfirmDialog(panel = editPanel, title = "Create a Hazard")
             if (result == JOptionPane.OK_OPTION) {
-                val hazard = editHazardPanel.toHazard()
+                val hazard = editPanel.toHazard()
                 hazardButton.text = "${hazard.hazardName} [${hazard.hazardUnit}]"
                 scope.hazard = hazard
             }
@@ -710,11 +704,10 @@ class ScopePanel(val scope: Scope) : Box(BoxLayout.PAGE_AXIS) {
 
         populationButton.toolTipText = "Click me to add a Population group"
         populationButton.addActionListener { _ ->
-            val editPopulationGroupPanel = EditPopulationGroupPanel(populationGroup = scope.populationGroup, isAdvanced = advancedCheckBox.isSelected)
-            val result = JOptionPane.showConfirmDialog(null, editPopulationGroupPanel, "Create a Population Group",
-                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)
+            val editPanel = EditPopulationGroupPanel(populationGroup = scope.populationGroup, isAdvanced = advancedCheckBox.isSelected)
+            val result = showConfirmDialog(panel = editPanel, title = "Create a Population Group")
             if (result == JOptionPane.OK_OPTION) {
-                val populationGroup = editPopulationGroupPanel.toPopulationGroup()
+                val populationGroup = editPanel.toPopulationGroup()
                 populationButton.text = populationGroup.populationName
                 scope.populationGroup = populationGroup
             }
@@ -1349,12 +1342,10 @@ class DataBackgroundPanel(var dataBackground: DataBackground? = null) : Box(BoxL
         val studySampleButton = JButton()
         studySampleButton.toolTipText = "Click me to add Study Sample"
         studySampleButton.addActionListener { _ ->
-            val editStudySamplePanel = EditStudySamplePanel(studySample = dataBackground?.studySample,
-                    isAdvanced = advancedCheckBox.isSelected)
-            val result = JOptionPane.showConfirmDialog(null, editStudySamplePanel, "Create Study sample",
-                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)
+            val editPanel = EditStudySamplePanel(studySample = dataBackground?.studySample, isAdvanced = advancedCheckBox.isSelected)
+            val result = showConfirmDialog(panel = editPanel, title = "Create Study sample")
             if (result == JOptionPane.OK_OPTION) {
-                val studySample = editStudySamplePanel.toStudySample()
+                val studySample = editPanel.toStudySample()
 
                 if (dataBackground == null) dataBackground = DataBackground()
                 dataBackground?.studySample = studySample
@@ -1365,12 +1356,11 @@ class DataBackgroundPanel(var dataBackground: DataBackground? = null) : Box(BoxL
         val dietaryAssessmentMethodButton = JButton()
         dietaryAssessmentMethodButton.toolTipText = "Click me to add Dietary assessment method"
         dietaryAssessmentMethodButton.addActionListener { _ ->
-            val editDietaryAssessmentPanel = EditDietaryAssessmentMethodPanel(
+            val editPanel = EditDietaryAssessmentMethodPanel(
                     dietaryAssessmentMethod = dataBackground?.dietaryAssessmentMethod, isAdvanced = advancedCheckBox.isSelected)
-            val result = JOptionPane.showConfirmDialog(null, editDietaryAssessmentPanel,
-                    "Create dietary assessment method", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)
+            val result = showConfirmDialog(panel = editPanel, title = "Create dietary assessment method")
             if (result == JOptionPane.OK_OPTION) {
-                val dietaryAssessmentMethod = editDietaryAssessmentPanel.toDietaryAssessmentMethod()
+                val dietaryAssessmentMethod = editPanel.toDietaryAssessmentMethod()
 
                 if (dataBackground == null) dataBackground = DataBackground(dietaryAssessmentMethod = dietaryAssessmentMethod)
                 else dataBackground?.dietaryAssessmentMethod = dietaryAssessmentMethod
@@ -1380,11 +1370,10 @@ class DataBackgroundPanel(var dataBackground: DataBackground? = null) : Box(BoxL
         val assayButton = JButton()
         assayButton.toolTipText = "Click me to add Assay"
         assayButton.addActionListener { _ ->
-            val editAssayPanel = EditAssayPanel(assay = dataBackground?.assay, isAdvanced = advancedCheckBox.isSelected)
-            val result = JOptionPane.showConfirmDialog(null, editAssayPanel, "Create assay",
-                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)
+            val editPanel = EditAssayPanel(assay = dataBackground?.assay, isAdvanced = advancedCheckBox.isSelected)
+            val result = showConfirmDialog(panel = editPanel, title = "Create assay")
             if (result == JOptionPane.OK_OPTION) {
-                val assay = editAssayPanel.toAssay()
+                val assay = editPanel.toAssay()
 
                 if (dataBackground == null) dataBackground = DataBackground(assay = assay)
                 else dataBackground?.assay = assay
@@ -2118,9 +2107,8 @@ class ParameterPanel(val parameters: MutableList<Parameter> = mutableListOf(), i
         // buttons
         val buttonsPanel = ButtonsPanel()
         buttonsPanel.addButton.addActionListener { _ ->
-            val editParameterPanel = EditParameterPanel(isAdvanced = isAdvanced)
-            val result = JOptionPane.showConfirmDialog(null, editParameterPanel, "Create parameter",
-                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)
+            val editPanel = EditParameterPanel(isAdvanced = isAdvanced)
+            val result = showConfirmDialog(panel = editPanel, title = "Create parameter")
             if (result == JOptionPane.OK_OPTION) {
                 // FIXME: Uncomment once EditParameterPanel.toParameter is implemented
 //                dtm.addRow(arrayOf(editParameterPanel.toParameter()))
@@ -2189,8 +2177,7 @@ class ModelEquationsPanel(
         val buttonsPanel = ButtonsPanel()
         buttonsPanel.addButton.addActionListener { _ ->
             val editPanel = EditModelEquationPanel(isAdvanced = isAdvanced)
-            val result = JOptionPane.showConfirmDialog(null, editPanel, "Create equation",
-                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)
+            val result = showConfirmDialog(panel = editPanel, title = "Create equation")
             if (result == JOptionPane.OK_OPTION) {
                 // TODO: process result
             }
@@ -2202,8 +2189,7 @@ class ModelEquationsPanel(
                 val equation = dtm.getValueAt(rowToEdit, 0) as ModelEquation
 
                 val editPanel = EditModelEquationPanel(equation = equation, isAdvanced = isAdvanced)
-                val result = JOptionPane.showConfirmDialog(null, editPanel, "Modify equation",
-                        JOptionPane.OK_OPTION, JOptionPane.PLAIN_MESSAGE)
+                val result = showConfirmDialog(panel = editPanel, title = "Modify equation")
                 if (result == JOptionPane.OK_OPTION) {
                     // TODO: process result
                 }
@@ -2314,4 +2300,13 @@ private class ButtonsPanel : JPanel() {
         add(modifyButton)
         add(removeButton)
     }
+}
+
+/**
+ * Shows Swing ok/cancel dialog.
+ *
+ * @return the selected option: JOptionPane.OK_OPTION or JOptionPane.CANCEL_OPTION
+ */
+private fun showConfirmDialog(panel: JPanel, title: String): Int {
+    return JOptionPane.showConfirmDialog(null, panel, title, JOptionPane.OK_OPTION, JOptionPane.PLAIN_MESSAGE)
 }
