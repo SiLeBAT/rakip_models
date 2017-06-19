@@ -378,8 +378,8 @@ class ReferencePanel(val refs: MutableList<Record>, var isAdvanced: Boolean) : J
         val myTable = HeadlessTable(model = dtm, renderer = renderer)
 
         // buttons
-        val addReferenceButton = JButton("Add reference")
-        addReferenceButton.addActionListener { _ ->
+        val buttonsPanel = ButtonsPanel()
+        buttonsPanel.addButton.addActionListener { _ ->
             val editReferencePanel = EditReferencePanel(isAdvanced = isAdvanced)
             val result = JOptionPane.showConfirmDialog(null, editReferencePanel, "Create reference",
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)
@@ -388,8 +388,7 @@ class ReferencePanel(val refs: MutableList<Record>, var isAdvanced: Boolean) : J
             }
         }
 
-        val modifyReferenceButton = JButton("Modify reference")
-        modifyReferenceButton.addActionListener { _ ->
+        buttonsPanel.modifyButton.addActionListener { _ ->
             val rowToEdit = myTable.selectedRow
             if (rowToEdit != -1) {
                 val ref = dtm.getValueAt(rowToEdit, 0) as Record
@@ -403,16 +402,10 @@ class ReferencePanel(val refs: MutableList<Record>, var isAdvanced: Boolean) : J
             }
         }
 
-        val removeReferenceButton = JButton("Remove reference")
-        removeReferenceButton.addActionListener { _ ->
+        buttonsPanel.removeButton.addActionListener { _ ->
             val rowToDelete = myTable.selectedRow
             if (rowToDelete != -1) dtm.removeRow(rowToDelete)
         }
-
-        val buttonsPanel = JPanel()
-        buttonsPanel.add(addReferenceButton)
-        buttonsPanel.add(modifyReferenceButton)
-        buttonsPanel.add(removeReferenceButton)
 
         add(myTable, BorderLayout.NORTH)
         add(buttonsPanel, BorderLayout.SOUTH)
@@ -575,8 +568,8 @@ class CreatorPanel(val creators: MutableList<VCard>) : JPanel(BorderLayout()) {
         val myTable = HeadlessTable(model = dtm, renderer = renderer)
 
         // buttons
-        val addCreatorButton = JButton("Add creator")
-        addCreatorButton.addActionListener { _ ->
+        val buttonsPanel = ButtonsPanel()
+        buttonsPanel.addButton.addActionListener { _ ->
             val editCreatorPanel = EditCreatorPanel()
             val result = JOptionPane.showConfirmDialog(null, editCreatorPanel, "Create creator",
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)
@@ -585,8 +578,7 @@ class CreatorPanel(val creators: MutableList<VCard>) : JPanel(BorderLayout()) {
             }
         }
 
-        val modifyCreatorButton = JButton("Modify creator")
-        modifyCreatorButton.addActionListener { _ ->
+        buttonsPanel.modifyButton.addActionListener { _ ->
             val rowToEdit = myTable.selectedRow
             if (rowToEdit != -1) {
                 val creator = dtm.getValueAt(rowToEdit, 0) as VCard
@@ -600,16 +592,10 @@ class CreatorPanel(val creators: MutableList<VCard>) : JPanel(BorderLayout()) {
             }
         }
 
-        val removeCreatorButton = JButton("Remove creator")
-        removeCreatorButton.addActionListener { _ ->
+        buttonsPanel.removeButton.addActionListener { _ ->
             val rowToDelete = myTable.selectedRow
             if (rowToDelete != -1) dtm.removeRow(rowToDelete)
         }
-
-        val buttonsPanel = JPanel()
-        buttonsPanel.add(addCreatorButton)
-        buttonsPanel.add(modifyCreatorButton)
-        buttonsPanel.add(removeCreatorButton)
 
         add(myTable, BorderLayout.NORTH)
         add(buttonsPanel, BorderLayout.SOUTH)
@@ -632,6 +618,7 @@ class EditCreatorPanel(creator: VCard? = null) : JPanel(GridBagLayout()) {
         initUI()
 
         // Populate interface if `creator` is provided
+        // TODO: replace if with `creator?.let { ... }`
         if (creator != null) {
             givenNameField.text = creator.nickname?.values?.firstOrNull()
             familyNameField.text = creator.formattedName?.value
@@ -2130,30 +2117,24 @@ class ParameterPanel(val parameters: MutableList<Parameter> = mutableListOf(), i
         val myTable = HeadlessTable(model = dtm, renderer = renderer)
 
         // buttons
-        val addParameterButton = JButton("Add parameter")
-        addParameterButton.addActionListener { _ ->
+        val buttonsPanel = ButtonsPanel()
+        buttonsPanel.addButton.addActionListener { _ ->
             val editParameterPanel = EditParameterPanel(isAdvanced = isAdvanced)
             val result = JOptionPane.showConfirmDialog(null, editParameterPanel, "Create parameter",
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)
             if (result == JOptionPane.OK_OPTION) {
-//                dtm.addRow(arrayOf(editParameterPanel.toParameter()))  // FIXME: Uncomment once EditParameterPanel.toParameter is implemented
+                // FIXME: Uncomment once EditParameterPanel.toParameter is implemented
+//                dtm.addRow(arrayOf(editParameterPanel.toParameter()))
             }
         }
 
-        val modifyParameterButton = JButton("Modify parameter")
-        modifyParameterButton.addActionListener { _ ->
+        buttonsPanel.modifyButton.addActionListener { _ ->
             println("dummy listener")
         }
 
-        val removeParameterButton = JButton("Remove parameter")
-        removeParameterButton.addActionListener { _ ->
+        buttonsPanel.removeButton.addActionListener { _ ->
             println("dummy listener")
         }
-
-        val buttonsPanel = JPanel()
-        buttonsPanel.add(addParameterButton)
-        buttonsPanel.add(modifyParameterButton)
-        buttonsPanel.add(removeParameterButton)
 
         add(myTable, BorderLayout.NORTH)
         add(buttonsPanel, BorderLayout.SOUTH)
@@ -2207,22 +2188,15 @@ class ModelEquationsPanel(
         val myTable = HeadlessTable(model = dtm, renderer = renderer)
 
         // TODO: buttons ...
-        val addEquationButton = JButton("Add equation")
-        addEquationButton.addActionListener { _ -> println("dummy listener") }
+        val buttonsPanel = ButtonsPanel()
+        buttonsPanel.addButton.addActionListener { _ -> println("dummy listener") }
 
-        val modifyEquationButton = JButton("Modify equation")
-        modifyEquationButton.addActionListener { _ -> println("dummy listener") }
+        buttonsPanel.modifyButton.addActionListener { _ -> println("dummy listener") }
 
-        val removeEquationButton = JButton("Remove equation")
-        removeEquationButton.addActionListener { _ -> println("dummy listener") }
-
-        val buttonsPanel = JPanel()
-        buttonsPanel.add(addEquationButton)
-        buttonsPanel.add(modifyEquationButton)
-        buttonsPanel.add(removeEquationButton)
+        buttonsPanel.removeButton.addActionListener { _ -> println("dummy listener") }
 
         add(myTable, BorderLayout.NORTH)
-        add(buttonsPanel, BorderLayout.SOUTH)  // TODO: buttons panel
+        add(buttonsPanel, BorderLayout.SOUTH)
     }
 }
 
@@ -2274,4 +2248,17 @@ private class HeadlessTable(model: NonEditableTableModel, val renderer: DefaultT
     }
 
     override fun getCellRenderer(row: Int, column: Int) = renderer
+}
+
+private class ButtonsPanel : JPanel() {
+
+    val addButton = JButton("Add")
+    val modifyButton = JButton("Modify")
+    val removeButton = JButton("Remove")
+
+    init {
+        add(addButton)
+        add(modifyButton)
+        add(removeButton)
+    }
 }
