@@ -618,11 +618,10 @@ class EditCreatorPanel(creator: VCard? = null) : JPanel(GridBagLayout()) {
         initUI()
 
         // Populate interface if `creator` is provided
-        // TODO: replace if with `creator?.let { ... }`
-        if (creator != null) {
-            givenNameField.text = creator.nickname?.values?.firstOrNull()
-            familyNameField.text = creator.formattedName?.value
-            contactField.text = creator.emails?.first()?.value
+        creator?.let {
+            givenNameField.text = it.nickname?.values?.firstOrNull()
+            familyNameField.text = it.formattedName?.value
+            contactField.text = it.emails?.first()?.value
         }
     }
 
@@ -1871,8 +1870,8 @@ class EditAssayPanel(assay: Assay? = null, isAdvanced: Boolean) : JPanel(GridBag
 
         // Populate UI with passed `assay`
         assay?.let {
-            nameTextField.text = assay.name
-            descriptionTextArea?.text = assay.description
+            nameTextField.text = it.name
+            descriptionTextArea?.text = it.description
         }
 
         initUI()
