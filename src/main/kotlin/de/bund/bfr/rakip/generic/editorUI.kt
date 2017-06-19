@@ -12,7 +12,6 @@ import java.util.*
 import javax.swing.*
 import javax.swing.table.DefaultTableCellRenderer
 import javax.swing.table.DefaultTableModel
-import javax.swing.table.TableCellRenderer
 
 fun readControlledVocabulary(filename: String): Array<String> {
     val allLines = File(filename).readLines()
@@ -363,29 +362,20 @@ class ReferencePanel(val refs: MutableList<Record>, var isAdvanced: Boolean) : J
         val dtm = NonEditableTableModel()
         refs.forEach { dtm.addRow(arrayOf(it)) }
 
-        val myTable = object : JTable(dtm) {
+        val renderer = object : DefaultTableCellRenderer() {
+            override fun setValue(value: Any?) {
+                if (value == null) text = ""
+                else {
+                    val record = value as Record
 
-            init {
-                tableHeader = null  // hide header
-                setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
-            }
-
-            private val renderer = object : DefaultTableCellRenderer() {
-                override fun setValue(value: Any?) {
-                    if (value == null) text = ""
-                    else {
-                        val record = value as Record
-
-                        val firstAuthor = record.authors?.get(0) ?: ""
-                        val publicationYear = record.pubblicationYear.orEmpty()
-                        val title = record.title.orEmpty()
-                        text = "${firstAuthor}_${publicationYear}_$title"
-                    }
+                    val firstAuthor = record.authors?.get(0) ?: ""
+                    val publicationYear = record.pubblicationYear.orEmpty()
+                    val title = record.title.orEmpty()
+                    text = "${firstAuthor}_${publicationYear}_$title"
                 }
             }
-
-            override fun getCellRenderer(p0: Int, p1: Int) = renderer
         }
+        val myTable = HeadlessTable(model = dtm, renderer = renderer)
 
         // buttons
         val addReferenceButton = JButton("Add reference")
@@ -569,29 +559,20 @@ class CreatorPanel(val creators: MutableList<VCard>) : JPanel(BorderLayout()) {
         val dtm = NonEditableTableModel()
         creators.forEach { dtm.addRow(arrayOf(it)) }
 
-        val myTable = object : JTable(dtm) {
+        val renderer = object : DefaultTableCellRenderer() {
+            override fun setValue(value: Any?) {
+                value?.let {
+                    val creator = value as VCard
 
-            init {
-                tableHeader = null // hide header
-                setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
-            }
+                    val givenName = creator.nickname?.values?.get(0)
+                    val familyName = creator.formattedName.value
+                    val contact = creator.emails?.get(0)?.value
 
-            private val renderer = object : DefaultTableCellRenderer() {
-                override fun setValue(value: Any?) {
-                    value?.let {
-                        val creator = value as VCard
-
-                        val givenName = creator.nickname?.values?.get(0)
-                        val familyName = creator.formattedName.value
-                        val contact = creator.emails?.get(0)?.value
-
-                        text = "${givenName}_${familyName}_$contact"
-                    }
+                    text = "${givenName}_${familyName}_$contact"
                 }
             }
-
-            override fun getCellRenderer(p0: Int, p1: Int) = renderer
         }
+        val myTable = HeadlessTable(model = dtm, renderer = renderer)
 
         // buttons
         val addCreatorButton = JButton("Add creator")
@@ -2141,24 +2122,12 @@ class ParameterPanel(val parameters: MutableList<Parameter> = mutableListOf(), i
         val dtm = NonEditableTableModel()
         parameters.forEach { dtm.addRow(arrayOf(it)) }
 
-        val myTable = object : JTable(dtm) {
-
-            init {
-                tableHeader = null // hide header
-                setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
+        val renderer = object : DefaultTableCellRenderer() {
+            override fun setValue(value: Any?) {
+                text = (value as Parameter?)?.id
             }
-
-            private val renderer = object : DefaultTableCellRenderer() {
-                override fun setValue(value: Any?) {
-                    value?.let {
-                        val parameter = value as Parameter
-                        text = parameter.id
-                    }
-                }
-            }
-
-            override fun getCellRenderer(p0: Int, p1: Int) = renderer
         }
+        val myTable = HeadlessTable(model = dtm, renderer = renderer)
 
         // buttons
         val addParameterButton = JButton("Add parameter")
@@ -2230,20 +2199,12 @@ class ModelEquationsPanel(
         val dtm = NonEditableTableModel()
         equations.forEach { dtm.addRow(arrayOf(it)) }
 
-        val myTable = object : JTable(dtm) {
-            init {
-                tableHeader = null  // hide header
-                setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
+        val renderer = object : DefaultTableCellRenderer() {
+            override fun setValue(value: Any?) {
+                text = (value as ModelEquation?)?.equationName
             }
-
-            private val renderer = object : DefaultTableCellRenderer() {
-                override fun setValue(value: Any?) {
-                    text = (value as ModelEquation?)?.equationName
-                }
-            }
-
-            override fun getCellRenderer(row: Int, column: Int) = renderer
         }
+        val myTable = HeadlessTable(model = dtm, renderer = renderer)
 
         // TODO: buttons ...
         val addEquationButton = JButton("Add equation")
@@ -2303,4 +2264,14 @@ private fun createSpinnerPercentageModel() = SpinnerNumberModel(0.0, 0.0, 1.0, .
 
 private class NonEditableTableModel : DefaultTableModel(arrayOf(), arrayOf("header")) {
     override fun isCellEditable(row: Int, column: Int) = false
+}
+
+private class HeadlessTable(model: NonEditableTableModel, val renderer: DefaultTableCellRenderer) : JTable(model) {
+
+    init {
+        tableHeader = null  // Hide header
+        setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
+    }
+
+    override fun getCellRenderer(row: Int, column: Int) = renderer
 }
