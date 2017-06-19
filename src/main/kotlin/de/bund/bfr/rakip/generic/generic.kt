@@ -45,7 +45,7 @@ data class ModelCategory(
  * @property languageWrittenIn  Language used to write the model
  * @property status Curation status of the model
  * @property objective Objective of the model or data
- * @property description General description of the study, data or model
+ * @property description General assayDescription of the study, data or model
  */
 data class GeneralInformation(
         var name: String,
@@ -74,6 +74,7 @@ data class Product(
         var environmentUnit: String,
         val methodOfProduction: MutableList<String> = mutableListOf(),
         val packaging: MutableList<String> = mutableListOf(),
+        // TODO: product treatment
         var countryOfOrigin: String? = null,
         var areaOfOrigin: String? = null,
         var fisheriesArea: String? = null,
@@ -145,7 +146,7 @@ data class Scope(
 
 /**
  * @property title Study title
- * @property description Study description
+ * @property description Study assayDescription
  * @property designType Study type
  * @property measurementType Observed measure in the assay
  * @property technologyType Employed technology to observe this measurement
@@ -172,7 +173,7 @@ data class Study(
         var componentsType: String? = null
 )
 
-data class StudySample(
+data class  StudySample(
         var sample: String,
         var collectionProtocol: String,
         var samplingStrategy: String? = null,
@@ -207,7 +208,7 @@ data class Assay(var name: String, var description: String? = null)
 data class DataBackground(
         var study: Study? = null,
         var studySample: StudySample? = null,
-        val dietaryAssessmentMethod: DietaryAssessmentMethod? = null,
+        var dietaryAssessmentMethod: DietaryAssessmentMethod? = null,
         val laboratoryAccreditation: MutableList<String> = mutableListOf(),
         var assay: Assay? = null
 )
@@ -278,7 +279,7 @@ data class Exposure(
  * @property algorithm Simulation algorithm
  * @property simulatedModel URI of the model applied for simulation/prediction
  * @property parameterSettings
- * @property description General description of the simulation
+ * @property description General assayDescription of the simulation
  * @property plotSettings Information on the parameters to be plotted
  * @property visualizationScript Pointer to software code (R script)
  */

@@ -1,2 +1,4 @@
 rootProject.name = 'rakip_models'
+include 'editor'
+include 'editor'
 
