@@ -360,14 +360,8 @@ class ReferencePanel(val refs: MutableList<Record>, var isAdvanced: Boolean) : J
     init {
         border = BorderFactory.createTitledBorder("References")
 
-        val dtm = object : DefaultTableModel(arrayOf(), arrayOf("header")) {
-
-            init {
-                refs.forEach { addRow(arrayOf(it)) }
-            }
-
-            override fun isCellEditable(p0: Int, p1: Int) = false
-        }
+        val dtm = NonEditableTableModel()
+        refs.forEach { dtm.addRow(arrayOf(it)) }
 
         val myTable = object : JTable(dtm) {
 
@@ -572,14 +566,8 @@ class CreatorPanel(val creators: MutableList<VCard>) : JPanel(BorderLayout()) {
     init {
         border = BorderFactory.createTitledBorder("Creators")
 
-        val dtm = object : DefaultTableModel(arrayOf(), arrayOf("header")) {
-
-            init {
-                creators.forEach { addRow(arrayOf(it)) }
-            }
-
-            override fun isCellEditable(p0: Int, p1: Int) = false
-        }
+        val dtm = NonEditableTableModel()
+        creators.forEach { dtm.addRow(arrayOf(it)) }
 
         val myTable = object : JTable(dtm) {
 
@@ -2150,13 +2138,8 @@ class ParameterPanel(val parameters: MutableList<Parameter> = mutableListOf(), i
     init {
         border = BorderFactory.createTitledBorder(ModelMathPanel.parameters)
 
-        val dtm = object : DefaultTableModel(arrayOf(), arrayOf("header")) {
-            init {
-                parameters.forEach { addRow(arrayOf(it)) }
-            }
-
-            override fun isCellEditable(p0: Int, p1: Int) = false
-        }
+        val dtm = NonEditableTableModel()
+        parameters.forEach { dtm.addRow(arrayOf(it)) }
 
         val myTable = object : JTable(dtm) {
 
@@ -2244,13 +2227,8 @@ class ModelEquationsPanel(
     init {
         border = BorderFactory.createTitledBorder(ModelMathPanel.modelEquation)
 
-        val dtm = object : DefaultTableModel(arrayOf(), arrayOf("header")) {
-            init {
-                equations.forEach { addRow(arrayOf(it)) }
-            }
-
-            override fun isCellEditable(row: Int, column: Int) = false
-        }
+        val dtm = NonEditableTableModel()
+        equations.forEach { dtm.addRow(arrayOf(it)) }
 
         val myTable = object : JTable(dtm) {
             init {
@@ -2322,3 +2300,7 @@ private fun createSpinnerDoubleModel() = SpinnerNumberModel(0.0, null, null, .01
  * Has limits 0.0 and 1.0.
  * */
 private fun createSpinnerPercentageModel() = SpinnerNumberModel(0.0, 0.0, 1.0, .01)
+
+private class NonEditableTableModel : DefaultTableModel(arrayOf(), arrayOf("header")) {
+    override fun isCellEditable(row: Int, column: Int) = false
+}
