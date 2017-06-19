@@ -12,6 +12,7 @@ import java.util.*
 import javax.swing.*
 import javax.swing.table.DefaultTableCellRenderer
 import javax.swing.table.DefaultTableModel
+import javax.swing.table.TableCellRenderer
 
 fun readControlledVocabulary(filename: String): Array<String> {
     val allLines = File(filename).readLines()
@@ -1953,8 +1954,7 @@ class ModelMathPanel(modelMath: ModelMath? = null) : Box(BoxLayout.PAGE_AXIS) {
 
         val qualityMeasuresPanel = QualityMeasuresPanel()
 
-        val modelEquationPanel = JPanel()
-        modelEquationPanel.border = BorderFactory.createTitledBorder(modelEquation)
+        val modelEquationPanel = ModelEquationsPanel(isAdvanced = advancedCheckBox.isSelected)
 
 //        val fittingProcedure = JPanel()
 //        fittingProcedure.border = BorderFactory.createTitledBorder(fittingProcedure)
@@ -2211,26 +2211,79 @@ class ParameterPanel(val parameters: MutableList<Parameter> = mutableListOf(), i
 class QualityMeasuresPanel(sse: Double? = null, mse: Double? = null, rmse: Double? = null,
                            r2: Double? = null, aic: Double? = null, bic: Double? = null) : JPanel(GridBagLayout()) {
 
-    val sseTextField = JTextField(30)
-    val mseTextField = JTextField(30)
-    val rmseTextField = JTextField(30)
-    val r2TextField = JTextField(30)
-    val aicTextField = JTextField(30)
-    val bicTextField = JTextField(30)
+    val sseSpinnerModel = createSpinnerDoubleModel()
+    val mseSpinnerModel = createSpinnerDoubleModel()
+    val rmseSpinnerModel = createSpinnerDoubleModel()
+    val r2SpinnerModel = createSpinnerDoubleModel()
+    val aicSpinnerModel = createSpinnerDoubleModel()
+    val bicSpinnerModel = createSpinnerDoubleModel()
 
     init {
         val pairList = listOf<Pair<JLabel, JComponent>>(
-                Pair(first = JLabel("SSE"), second = sseTextField),
-                Pair(first = JLabel("MSE"), second = mseTextField),
-                Pair(first = JLabel("RMSE"), second = rmseTextField),
-                Pair(first = JLabel("r-Squared"), second = r2TextField),
-                Pair(first = JLabel("AIC"), second = aicTextField),
-                Pair(first = JLabel("BIC"), second = bicTextField)
+                Pair(first = JLabel("SSE"), second = createSpinner(sseSpinnerModel)),
+                Pair(first = JLabel("MSE"), second = createSpinner(mseSpinnerModel)),
+                Pair(first = JLabel("RMSE"), second = createSpinner(rmseSpinnerModel)),
+                Pair(first = JLabel("r-Squared"), second = createSpinner(r2SpinnerModel)),
+                Pair(first = JLabel("AIC"), second = createSpinner(aicSpinnerModel)),
+                Pair(first = JLabel("BIC"), second = createSpinner(bicSpinnerModel))
         )
 
         addGridComponents(pairs = pairList)
 
         border = BorderFactory.createTitledBorder(ModelMathPanel.qualityMeasures)
+    }
+
+    // TODO: toQualityMeasures
+}
+
+class ModelEquationsPanel(
+        val equations: MutableList<ModelEquation> = mutableListOf(),
+        isAdvanced: Boolean
+) : JPanel(BorderLayout()) {
+
+    init {
+        border = BorderFactory.createTitledBorder(ModelMathPanel.modelEquation)
+
+        val dtm = object : DefaultTableModel(arrayOf(), arrayOf("header")) {
+            init {
+                equations.forEach { addRow(arrayOf(it)) }
+            }
+
+            override fun isCellEditable(row: Int, column: Int) = false
+        }
+
+        val myTable = object : JTable(dtm) {
+            init {
+                tableHeader = null  // hide header
+                setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
+            }
+
+            private val renderer = object : DefaultTableCellRenderer() {
+                override fun setValue(value: Any?) {
+                    text = (value as ModelEquation?)?.equationName
+                }
+            }
+
+            override fun getCellRenderer(row: Int, column: Int) = renderer
+        }
+
+        // TODO: buttons ...
+        val addEquationButton = JButton("Add equation")
+        addEquationButton.addActionListener { _ -> println("dummy listener") }
+
+        val modifyEquationButton = JButton("Modify equation")
+        modifyEquationButton.addActionListener { _ -> println("dummy listener") }
+
+        val removeEquationButton = JButton("Remove equation")
+        removeEquationButton.addActionListener { _ -> println("dummy listener") }
+
+        val buttonsPanel = JPanel()
+        buttonsPanel.add(addEquationButton)
+        buttonsPanel.add(modifyEquationButton)
+        buttonsPanel.add(removeEquationButton)
+
+        add(myTable, BorderLayout.NORTH)
+        add(buttonsPanel, BorderLayout.SOUTH)  // TODO: buttons panel
     }
 }
 
@@ -2250,7 +2303,7 @@ private fun createAdvancedPanel(checkbox: JCheckBox): JPanel {
 }
 
 /** Creates a JSpinner with 5 columns. */
-private fun createSpinner(spinnerModel: AbstractSpinnerModel) : JSpinner {
+private fun createSpinner(spinnerModel: AbstractSpinnerModel): JSpinner {
     val spinner = JSpinner(spinnerModel)
     (spinner.editor as JSpinner.DefaultEditor).textField.columns = 5
 
