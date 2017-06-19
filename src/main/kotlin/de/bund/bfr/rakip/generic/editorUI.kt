@@ -462,10 +462,8 @@ class EditReferencePanel(ref: Record? = null, isAdvanced: Boolean) : JPanel(Grid
     private val titleTextField = JTextField(30)
     private val abstractTextArea = if (isAdvanced) JTextArea(5, 30) else null
     private val journalTextField = if (isAdvanced) JTextField(30) else null
-    // TODO: Remove volumeTextField once replaced with volumeSpinnerModel
-//    private val volumeTextField = if (isAdvanced) JTextField(30) else null
-    private val volumeSpinnerModel = if (isAdvanced) SpinnerNumberModel(0, null, null, 1) else null
-    private val issueSpinnerModel = if (isAdvanced) SpinnerNumberModel(0, null, null, 1) else null
+    private val volumeSpinnerModel = if (isAdvanced) createSpinnerIntegerModel() else null
+    private val issueSpinnerModel = if (isAdvanced) createSpinnerIntegerModel() else null
     private val pageTextField = if (isAdvanced) JTextField(30) else null
     private val statusTextField = if (isAdvanced) JTextField(30) else null
     private val websiteTextField = if (isAdvanced) JTextField(30) else null
@@ -868,8 +866,8 @@ class EditProductPanel(product: Product? = null, isAdvanced: Boolean) : JPanel(G
     private val fisheriesAreaComboBox = if (isAdvanced) JComboBox<String>() else null
     private val productionDateChooser = if (isAdvanced) FixedJDateChooser() else null
     private val expirationDateChooser = if (isAdvanced) FixedJDateChooser() else null
-    private val moisturePercentageTextField = if (isAdvanced) JTextField(30) else null
-    private val fatPercentageTextField = if (isAdvanced) JTextField(30) else null
+    private val moisturePercentageSpinnerModel = if (isAdvanced) createSpinnerPercentageModel() else null
+    private val fatPercentageSpinnerModel = if (isAdvanced) createSpinnerPercentageModel() else null
 
     init {
 
@@ -892,8 +890,8 @@ class EditProductPanel(product: Product? = null, isAdvanced: Boolean) : JPanel(G
             fisheriesAreaComboBox?.selectedItem = it.fisheriesArea
             productionDateChooser?.date = it.productionDate
             expirationDateChooser?.date = it.expirationDate
-            moisturePercentageTextField?.text = it.moisturePercentage?.toString()
-            fatPercentageTextField?.text = it.fatPercentage?.toString()
+            if (it.moisturePercentage != null) moisturePercentageSpinnerModel?.value = it.moisturePercentage
+            if (it.fatPercentage != null) fatPercentageSpinnerModel?.value = it.fatPercentage
         }
         initUI()
     }
@@ -923,8 +921,14 @@ class EditProductPanel(product: Product? = null, isAdvanced: Boolean) : JPanel(G
         fisheriesAreaComboBox?.let { pairList.add(Pair(first = fisheriesAreaLabel, second = it)) }
         productionDateChooser?.let { pairList.add(Pair(first = productionDateLabel, second = it)) }
         expirationDateChooser?.let { pairList.add(Pair(first = expirationDateLabel, second = it)) }
-        moisturePercentageTextField?.let { pairList.add(Pair(first = moisturePercentageLabel, second = it)) }
-        fatPercentageTextField?.let { pairList.add(Pair(first = fatPercentageLabel, second = it)) }
+        moisturePercentageSpinnerModel?.let {
+            val spinner = createSpinner(it)
+            pairList.add(Pair(first = moisturePercentageLabel, second = spinner))
+        }
+        fatPercentageSpinnerModel?.let {
+            val spinner = createSpinner(it)
+            pairList.add(Pair(first = fatPercentageLabel, second = spinner))
+        }
 
         addGridComponents(pairs = pairList)
     }
@@ -944,8 +948,8 @@ class EditProductPanel(product: Product? = null, isAdvanced: Boolean) : JPanel(G
         product.fisheriesArea = fisheriesAreaComboBox?.selectedItem as String?
         product.productionDate = productionDateChooser?.date
         product.expirationDate = expirationDateChooser?.date
-        product.moisturePercentage = moisturePercentageTextField?.text?.toDoubleOrNull()
-        product.fatPercentage = fatPercentageTextField?.text?.toDoubleOrNull()
+        product.moisturePercentage = moisturePercentageSpinnerModel?.number?.toDouble()
+        product.fatPercentage = fatPercentageSpinnerModel?.number?.toDouble()
 
         return product
     }
@@ -2250,3 +2254,12 @@ private fun createSpinner(spinnerModel: AbstractSpinnerModel) : JSpinner {
 
     return spinner
 }
+
+/** Creates a SpinnerNumberModel for integers with no limits and initial value 0. */
+private fun createSpinnerIntegerModel() = SpinnerNumberModel(0, null, null, 1)
+
+///** Creates a SpinnerNumberModel for real numbers with no limits and initial value 0.0. */
+//private fun createSpinnerDoubleModel() = SpinnerNumberModel(0.0, null, null, .01)
+
+/** Creates a SpinnerNumberModel for percentages (doubles) and initial value 0.0. */
+private fun createSpinnerPercentageModel() = SpinnerNumberModel(0.0, 0.0, 1.0, .01)
