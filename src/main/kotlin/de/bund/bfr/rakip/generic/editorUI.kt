@@ -2189,7 +2189,8 @@ class ModelEquationsPanel(
         val buttonsPanel = ButtonsPanel()
         buttonsPanel.addButton.addActionListener { _ ->
             val editPanel = EditModelEquationPanel(isAdvanced = isAdvanced)
-            val result = JOptionPane.showConfirmDialog(null, editPanel, "Create equation", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)
+            val result = JOptionPane.showConfirmDialog(null, editPanel, "Create equation",
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)
             if (result == JOptionPane.OK_OPTION) {
                 // TODO: process result
             }
@@ -2201,7 +2202,8 @@ class ModelEquationsPanel(
                 val equation = dtm.getValueAt(rowToEdit, 0) as ModelEquation
 
                 val editPanel = EditModelEquationPanel(equation = equation, isAdvanced = isAdvanced)
-                val result = JOptionPane.showConfirmDialog(null, editPanel, "Modify equation", JOptionPane.OK_OPTION, JOptionPane.PLAIN_MESSAGE)
+                val result = JOptionPane.showConfirmDialog(null, editPanel, "Modify equation",
+                        JOptionPane.OK_OPTION, JOptionPane.PLAIN_MESSAGE)
                 if (result == JOptionPane.OK_OPTION) {
                     // TODO: process result
                 }
@@ -2222,14 +2224,14 @@ class EditModelEquationPanel(equation: ModelEquation? = null, isAdvanced: Boolea
 
     companion object {
 
-        val equationName = "Equation name"
-        val equationNameTooltip = ""  // TODO: equationNameTooltip
+        val equationName = "Model equation name"
+        val equationNameTooltip = "A name given to the model equation"
 
-        val equationClass = "Equation class"
-        val equationClassTooltip = ""  // TODO: equationClassTooltip
+        val equationClass = "Model equation class"
+        val equationClassTooltip = "Information on that helps to categorize model equations"
 
         val script = "Equation"
-        val scriptToolTip = ""  // TODO: equationTooltip
+        val scriptToolTip = "The pointer to the file that holds the software code (e.g. R-script)"
     }
 
     val equationNameLabel = createLabel(text = equationName, tooltip = equationNameTooltip)
