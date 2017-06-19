@@ -2231,11 +2231,18 @@ class EditModelEquationPanel(equation: ModelEquation? = null, isAdvanced: Boolea
 
     init {
 
-        val pairList = listOf<Pair<JLabel, JComponent>>(
-                Pair(first = equationNameLabel, second = equationNameTextField),
-                Pair(first = equationClassLabel, second = equationClassTextField),
-                Pair(first = scriptLabel, second = scriptTextArea))
-        addGridComponents(pairs = pairList)
+        val referencePanel = ReferencePanel(refs = equation?.equationReference ?: mutableListOf(), isAdvanced = isAdvanced)
+
+        add(comp = equationNameLabel, gridy = 0, gridx = 0)
+        add(comp = equationNameTextField, gridy = 0, gridx = 1)
+
+        add(comp = equationClassLabel, gridy = 1, gridx = 0)
+        add(comp = equationClassTextField, gridy = 1, gridx = 1)
+
+        add(comp = referencePanel, gridy = 2, gridx = 0, gridwidth = 2)
+
+        add(comp = scriptLabel, gridy = 3, gridx = 0)
+        add(comp = scriptTextArea, gridy = 3, gridx = 1, gridwidth = 2)
     }
 }
 
