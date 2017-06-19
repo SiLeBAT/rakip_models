@@ -2186,16 +2186,68 @@ class ModelEquationsPanel(
         }
         val myTable = HeadlessTable(model = dtm, renderer = renderer)
 
-        // TODO: buttons ...
         val buttonsPanel = ButtonsPanel()
-        buttonsPanel.addButton.addActionListener { _ -> println("dummy listener") }
+        buttonsPanel.addButton.addActionListener { _ ->
+            val editPanel = EditModelEquationPanel(isAdvanced = isAdvanced)
+            val result = JOptionPane.showConfirmDialog(null, editPanel, "Create equation", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE)
+            if (result == JOptionPane.OK_OPTION) {
+                // TODO: process result
+            }
+        }
 
-        buttonsPanel.modifyButton.addActionListener { _ -> println("dummy listener") }
+        buttonsPanel.modifyButton.addActionListener { _ ->
+            val rowToEdit = myTable.selectedRow
+            if (rowToEdit != -1) {
+                val equation = dtm.getValueAt(rowToEdit, 0) as ModelEquation
 
-        buttonsPanel.removeButton.addActionListener { _ -> println("dummy listener") }
+                val editPanel = EditModelEquationPanel(equation = equation, isAdvanced = isAdvanced)
+                val result = JOptionPane.showConfirmDialog(null, editPanel, "Modify equation", JOptionPane.OK_OPTION, JOptionPane.PLAIN_MESSAGE)
+                if (result == JOptionPane.OK_OPTION) {
+                    // TODO: process result
+                }
+            }
+        }
+
+        buttonsPanel.removeButton.addActionListener { _ ->
+            val rowToDelete = myTable.selectedRow
+            if (rowToDelete != -1) dtm.removeRow(rowToDelete)
+        }
 
         add(myTable, BorderLayout.NORTH)
         add(buttonsPanel, BorderLayout.SOUTH)
+    }
+}
+
+class EditModelEquationPanel(equation: ModelEquation? = null, isAdvanced: Boolean) : JPanel(GridBagLayout()) {
+
+    companion object {
+
+        val equationName = "Equation name"
+        val equationNameTooltip = ""  // TODO: equationNameTooltip
+
+        val equationClass = "Equation class"
+        val equationClassTooltip = ""  // TODO: equationClassTooltip
+
+        val script = "Equation"
+        val scriptToolTip = ""  // TODO: equationTooltip
+    }
+
+    val equationNameLabel = createLabel(text = equationName, tooltip = equationNameTooltip)
+    val equationNameTextField = JTextField(30)
+
+    val equationClassLabel = createLabel(text = equationClass, tooltip = equationClassTooltip)
+    val equationClassTextField = JTextField(30)
+
+    val scriptLabel = createLabel(text = script, tooltip = scriptToolTip)
+    val scriptTextArea = JTextArea(5, 30)
+
+    init {
+
+        val pairList = listOf<Pair<JLabel, JComponent>>(
+                Pair(first = equationNameLabel, second = equationNameTextField),
+                Pair(first = equationClassLabel, second = equationClassTextField),
+                Pair(first = scriptLabel, second = scriptTextArea))
+        addGridComponents(pairs = pairList)
     }
 }
 
