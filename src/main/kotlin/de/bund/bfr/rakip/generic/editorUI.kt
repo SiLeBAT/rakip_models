@@ -17,11 +17,13 @@ import javax.swing.table.DefaultTableModel
 
 val workbook = XSSFWorkbook("resources/FSKLab_CONFIG_RAKIP_CP.xlsx")
 
-val rightsVocab = readVocabFromSheet(workbook.getSheet("Rights"))
-val formatsVocab = readVocabFromSheet(workbook.getSheet("Format"))  // TODO: Format sheet is empty -> Talk with Carolina
-val softwareVocab = readVocabFromSheet(workbook.getSheet("Software"))
-val languageWrittenInVocab = readVocabFromSheet(workbook.getSheet("Language written in"))
-val statusVocab = readVocabFromSheet(workbook.getSheet("Status"))  // TODO: Status sheet is empty -> Talk with Carolina
+val vocabs = mapOf(
+        "Rights" to readVocabFromSheet(workbook.getSheet("Rights")),
+        "Format" to readVocabFromSheet(workbook.getSheet("Format")),  // TODO: Format sheet is empty -> Ask Carolina
+        "Software" to readVocabFromSheet(workbook.getSheet("Software")),
+        "Language written in" to readVocabFromSheet(workbook.getSheet("Language written in")),
+        "Status" to readVocabFromSheet(workbook.getSheet("Status"))  // TODO: Status sheet is empty -> Ask Carolina
+)
 
 fun readVocabFromSheet(sheet: XSSFSheet) : Set<String> {
     return sheet.filter { it.rowNum != 0 }.map { it.getCell(0).stringCellValue }.filter { it.isNotBlank() }.toSet()
@@ -80,18 +82,18 @@ fun main(args: Array<String>) {
     generalInformationPanel.studyNameTextField.text = gi.name
     generalInformationPanel.identifierTextField.text = gi.identifier
     generalInformationPanel.creationDateChooser.date = gi.creationDate
-    generalInformationPanel.rightsField.setPossibleValues(rightsVocab.toSet())
+    generalInformationPanel.rightsField.setPossibleValues(vocabs.get("Rights"))
     generalInformationPanel.rightsField.selectedItem = gi.rights
     generalInformationPanel.availabilityCheckBox.isSelected = gi.isAvailable
     generalInformationPanel.urlTextField.text = gi.url.toString()
-    generalInformationPanel.formatField.setPossibleValues(formatsVocab.toSet())
+    generalInformationPanel.formatField.setPossibleValues(vocabs.get("Format"))
     generalInformationPanel.formatField.selectedItem = gi.format
     generalInformationPanel.languageTextField.text = gi.language
-    generalInformationPanel.softwareField.setPossibleValues(softwareVocab)
+    generalInformationPanel.softwareField.setPossibleValues(vocabs.get("Software"))
     generalInformationPanel.softwareField.selectedItem = gi.software
-    generalInformationPanel.languageWrittenInField.setPossibleValues(languageWrittenInVocab)
+    generalInformationPanel.languageWrittenInField.setPossibleValues(vocabs.get("Language writte in"))
     generalInformationPanel.languageWrittenInField.selectedItem = gi.languageWrittenIn
-    generalInformationPanel.statusField.setPossibleValues(statusVocab)
+    generalInformationPanel.statusField.setPossibleValues(vocabs.get("Status"))
     generalInformationPanel.statusField.selectedItem = gi.status
     generalInformationPanel.objectiveTextField.text = gi.objective
     generalInformationPanel.descriptionTextField.text = gi.description
