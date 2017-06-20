@@ -48,4 +48,5 @@ dependencies {
     compile name: 'jcalendar-1.4'
     compile name: 'de.bund.bfr'
     compile group: 'com.google.guava', name: 'guava', version: '22.0'
+    compile group: 'org.apache.poi', name: 'poi-ooxml', version: '3.15'
 }
