@@ -7,26 +7,55 @@ import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.awt.*
 import java.awt.event.WindowEvent
-import java.io.File
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.logging.Logger
 import javax.swing.*
 import javax.swing.table.DefaultTableCellRenderer
 import javax.swing.table.DefaultTableModel
 
-val workbook = XSSFWorkbook("resources/FSKLab_CONFIG_RAKIP_CP.xlsx")
+val logger: Logger = Logger.getAnonymousLogger()
+
+val workbook = XSSFWorkbook("resources/FSKLab_Config_Controlled Vocabularies.xlsx")
 
 val vocabs = mapOf(
+        // General information controlled vocabularies
         "Rights" to readVocabFromSheet(workbook.getSheet("Rights")),
-        "Format" to readVocabFromSheet(workbook.getSheet("Format")),  // TODO: Format sheet is empty -> Ask Carolina
+        "Format" to readVocabFromSheet(workbook.getSheet("Format")),
         "Software" to readVocabFromSheet(workbook.getSheet("Software")),
         "Language written in" to readVocabFromSheet(workbook.getSheet("Language written in")),
-        "Status" to readVocabFromSheet(workbook.getSheet("Status"))  // TODO: Status sheet is empty -> Ask Carolina
+        "Status" to readVocabFromSheet(workbook.getSheet("Status")), // TODO: Status sheet is empty -> Ask Carolina
+
+        // Product controlled vocabularies
+        "Environment name" to readVocabFromSheet(workbook.getSheet("Product-matrix name")),
+        "Environment unit" to readVocabFromSheet(workbook.getSheet("Product-matrix unit")),
+        "Method of production" to readVocabFromSheet(workbook.getSheet("Method of production")), // TODO: Empty sheet
+        "Packaging" to readVocabFromSheet(workbook.getSheet("Packaging")), // TODO: Empty sheet
+        "Product treatment" to readVocabFromSheet(workbook.getSheet("Product treatment")), // TODO: Empty sheet
+        "Country of origin" to readVocabFromSheet(workbook.getSheet("Country of origin")), // TODO: Empty sheet
+        "Area of origin" to readVocabFromSheet(workbook.getSheet("Area of origin")), // TODO: Empty sheet
+        "Fisheries area" to readVocabFromSheet(workbook.getSheet("Fisheries area"))  // TODO: Empty sheet
 )
 
-fun readVocabFromSheet(sheet: XSSFSheet) : Set<String> {
-    return sheet.filter { it.rowNum != 0 }.map { it.getCell(0).stringCellValue }.filter { it.isNotBlank() }.toSet()
+fun readVocabFromSheet(sheet: XSSFSheet): Set<String> {
+    val vocab = mutableSetOf<String>()
+    for (row in sheet) {
+        if (row.rowNum == 0) continue  // Skip header
+        val cell = row.getCell(0) ?: continue  // Skip empty cells
+
+        // Replace faulty cells with "" that are later discarded
+        val cellValue = try {
+            cell.stringCellValue
+        } catch (e: Exception) {
+            logger.warning("Controlled vocabulary ${sheet.sheetName}: wrong value ${cell}")
+            ""
+        }
+
+        if (cellValue.isNotBlank()) vocab.add(cellValue)
+    }
+
+    return vocab
 }
 
 fun main(args: Array<String>) {
@@ -748,13 +777,16 @@ class EditProductPanel(product: Product? = null, isAdvanced: Boolean) : JPanel(G
             |</html>
             """.trimMargin()
 
-        val envDescription = "Environment assayDescription"
+        val envDescription = "Environment description"
         val envDescriptionTooltip = """
             |<html>
             |<p>Description of the environment (animal, food product, matrix, etc.) for
             |<p>which the model or data applies
             |</html>
             """.trimMargin()
+
+        val productionMethod = "Method of production"
+        val productionMethodTooltip = "Type of production for the product/ matrix"
 
         val envUnit = "Environment unit"
         val envUnitTooltip = "Units of the environment for which the model or data applies"
@@ -809,25 +841,25 @@ class EditProductPanel(product: Product? = null, isAdvanced: Boolean) : JPanel(G
     }
 
     // Fields. null if simple mode
-    private val envNameTextField = JTextField(30)
+    private val envNameField = AutoSuggestField(10)
     private val envDescriptionTextArea = if (isAdvanced) JTextArea(5, 30) else null
-    private val envUnitComboBox = JComboBox<String>()
+    private val envUnitField = AutoSuggestField(10)
+    private val productionMethodComboBox = if (isAdvanced) JComboBox<String>() else null
     private val packagingComboBox = if (isAdvanced) JComboBox<String>() else null
     private val productTreatmentComboBox = if (isAdvanced) JComboBox<String>() else null
-    private val originCountryComboBox = if (isAdvanced) JComboBox<String>() else null
-    private val originAreaComboBox = if (isAdvanced) JComboBox<String>() else null
-    private val fisheriesAreaComboBox = if (isAdvanced) JComboBox<String>() else null
+    private val originCountryField = if (isAdvanced) AutoSuggestField(10) else null
+    private val originAreaField = if (isAdvanced) AutoSuggestField(10) else null
+    private val fisheriesAreaField = if (isAdvanced) AutoSuggestField(10) else null
     private val productionDateChooser = if (isAdvanced) FixedJDateChooser() else null
     private val expirationDateChooser = if (isAdvanced) FixedJDateChooser() else null
     private val moisturePercentageSpinnerModel = if (isAdvanced) createSpinnerPercentageModel() else null
     private val fatPercentageSpinnerModel = if (isAdvanced) createSpinnerPercentageModel() else null
 
     init {
-
         product?.let {
-            envNameTextField.text = it.environmentName
+            envNameField.selectedItem = it.environmentName
             envDescriptionTextArea?.text = it.environmentDescription
-            envUnitComboBox.selectedItem = it.environmentUnit
+            envUnitField.selectedItem = it.environmentUnit
 
             /*
             TODO: init value of packagingComboBox
@@ -838,9 +870,9 @@ class EditProductPanel(product: Product? = null, isAdvanced: Boolean) : JPanel(G
             KNIME widget would be a temporary solution but ideally a new widget based on the KNIME widget and including
                the autocompletion feature should be developed.
             */
-            originCountryComboBox?.selectedItem = it.countryOfOrigin
-            originAreaComboBox?.selectedItem = it.areaOfOrigin
-            fisheriesAreaComboBox?.selectedItem = it.fisheriesArea
+            originCountryField?.selectedItem = it.countryOfOrigin
+            originAreaField?.selectedItem = it.areaOfOrigin
+            fisheriesAreaField?.selectedItem = it.fisheriesArea
             productionDateChooser?.date = it.productionDate
             expirationDateChooser?.date = it.expirationDate
             if (it.moisturePercentage != null) moisturePercentageSpinnerModel?.value = it.moisturePercentage
@@ -850,9 +882,12 @@ class EditProductPanel(product: Product? = null, isAdvanced: Boolean) : JPanel(G
     }
 
     private fun initUI() {
+
+        // Create labels
         val envNameLabel = createLabel(text = envName, tooltip = envNameTooltip)
         val envDescriptionLabel = createLabel(text = envDescription, tooltip = envDescriptionTooltip)
         val envUnitLabel = createLabel(text = envUnit, tooltip = envUnitTooltip)
+        val productionMethodLabel = createLabel(text = productionMethod, tooltip = productionMethodTooltip)
         val packagingLabel = createLabel(text = packaging, tooltip = packagingTooltip)
         val productTreatmentLabel = createLabel(text = productTreatment, tooltip = productTreatmentTooltip)
         val originCountryLabel = createLabel(text = originCountry, tooltip = originCountryTooltip)
@@ -863,15 +898,26 @@ class EditProductPanel(product: Product? = null, isAdvanced: Boolean) : JPanel(G
         val moisturePercentageLabel = createLabel(text = moisturePercentage, tooltip = moisturePercentageTooltip)
         val fatPercentageLabel = createLabel(text = fatPercentage, tooltip = fatPercentageTooltip)
 
+        // Init combo boxes
+        envNameField.setPossibleValues(vocabs.get("Environment name"))
+        envUnitField.setPossibleValues(vocabs.get("Environment unit"))
+        productionMethodComboBox?.let { vocabs["Method of production"]?.forEach(it::addItem) }
+        packagingComboBox?.let { vocabs["Packaging"]?.forEach(it::addItem) }
+        productTreatmentComboBox?.let { vocabs["Product treatment"]?.forEach(it::addItem) }
+        originCountryField?.setPossibleValues(vocabs["Country of origin"])
+        originAreaField?.setPossibleValues(vocabs["Area of origin"])
+        fisheriesAreaField?.setPossibleValues(vocabs["Fisheries area"])
+
         val pairList = mutableListOf<Pair<JLabel, JComponent>>()
-        pairList.add(Pair(first = envNameLabel, second = envNameTextField))
+        pairList.add(Pair(first = envNameLabel, second = envNameField))
         envDescriptionTextArea?.let { pairList.add(Pair(first = envDescriptionLabel, second = it)) }
-        pairList.add(Pair(first = envUnitLabel, second = envUnitComboBox))
+        pairList.add(Pair(first = envUnitLabel, second = envUnitField))
+        productionMethodComboBox?.let { pairList.add(Pair(first = productionMethodLabel, second = it)) }
         packagingComboBox?.let { pairList.add(Pair(first = packagingLabel, second = it)) }
         productTreatmentComboBox?.let { pairList.add(Pair(first = productTreatmentLabel, second = it)) }
-        originCountryComboBox?.let { pairList.add(Pair(first = originCountryLabel, second = it)) }
-        originAreaComboBox?.let { pairList.add(Pair(first = originAreaLabel, second = it)) }
-        fisheriesAreaComboBox?.let { pairList.add(Pair(first = fisheriesAreaLabel, second = it)) }
+        originCountryField?.let { pairList.add(Pair(first = originCountryLabel, second = it)) }
+        originAreaField?.let { pairList.add(Pair(first = originAreaLabel, second = it)) }
+        fisheriesAreaField?.let { pairList.add(Pair(first = fisheriesAreaLabel, second = it)) }
         productionDateChooser?.let { pairList.add(Pair(first = productionDateLabel, second = it)) }
         expirationDateChooser?.let { pairList.add(Pair(first = expirationDateLabel, second = it)) }
         moisturePercentageSpinnerModel?.let {
@@ -889,16 +935,16 @@ class EditProductPanel(product: Product? = null, isAdvanced: Boolean) : JPanel(G
     // TODO: toProduct
     fun toProduct(): Product {
 
-        val envUnit = if (envUnitComboBox.selectedItem == null) "" else envUnitComboBox.selectedItem as String
+        val envUnit = if (envUnitField.selectedItem == null) "" else envUnitField.selectedItem as String
 
-        val product = Product(environmentName = envNameTextField.text, environmentUnit = envUnit)
+        val product = Product(environmentName = envNameField.selectedItem as String, environmentUnit = envUnit)
         envDescriptionTextArea?.text?.let { product.environmentDescription = it }
         packagingComboBox?.selectedObjects?.forEach { product.packaging.add(it as String) }
 //        productTreatmentComboBox?.  // TODO: product treatment
 //        productTreatmentComboBox?.selectedObjects?.forEach { product.}
-        product.countryOfOrigin = originCountryComboBox?.selectedItem as String?
-        product.areaOfOrigin = originAreaComboBox?.selectedItem as String?
-        product.fisheriesArea = fisheriesAreaComboBox?.selectedItem as String?
+        product.countryOfOrigin = originCountryField?.selectedItem as String?
+        product.areaOfOrigin = originAreaField?.selectedItem as String?
+        product.fisheriesArea = fisheriesAreaField?.selectedItem as String?
         product.productionDate = productionDateChooser?.date
         product.expirationDate = expirationDateChooser?.date
         product.moisturePercentage = moisturePercentageSpinnerModel?.number?.toDouble()
