@@ -3,6 +3,8 @@ import com.toedter.calendar.JDateChooser
 import de.bund.bfr.knime.ui.AutoSuggestField
 import de.bund.bfr.rakip.generic.*
 import ezvcard.VCard
+import org.apache.poi.xssf.usermodel.XSSFSheet
+import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.awt.*
 import java.awt.event.WindowEvent
 import java.io.File
@@ -27,6 +29,15 @@ val pmfOrganisms = readControlledVocabulary("resources/pmf_organisms.csv")
 val pmfEnvironments = readControlledVocabulary("resources/pmf_environment.csv")
 val softwareList = readControlledVocabulary("resources/software.csv")
 val implementationLanguageList = readControlledVocabulary("resources/implementation_languages.csv")
+
+val workbook = XSSFWorkbook("resources/FSKLab_CONFIG_RAKIP_CP.xlsx")
+
+val rightsVocab = readVocabFromSheet(workbook.getSheet("Rights"))
+val formatsVocab = readVocabFromSheet(workbook.getSheet("Format"))  // TODO: Format sheet is empty -> Talk with Carolina
+
+fun readVocabFromSheet(sheet: XSSFSheet) : List<String> {
+    return sheet.filter { it.rowNum != 0 }.map { it.getCell(0).stringCellValue }.filter { it.isNotBlank() }.toList()
+}
 
 fun main(args: Array<String>) {
 
@@ -81,7 +92,8 @@ fun main(args: Array<String>) {
     generalInformationPanel.studyNameTextField.text = gi.name
     generalInformationPanel.identifierTextField.text = gi.identifier
     generalInformationPanel.creationDateChooser.date = gi.creationDate
-    generalInformationPanel.rightsTextField.text = gi.rights
+    generalInformationPanel.rightsField.setPossibleValues(rightsVocab.toSet())
+    generalInformationPanel.rightsField.selectedItem = gi.rights
     generalInformationPanel.availabilityCheckBox.isSelected = gi.isAvailable
     generalInformationPanel.urlTextField.text = gi.url.toString()
     generalInformationPanel.formatTextField.text = gi.format
@@ -119,7 +131,7 @@ fun main(args: Array<String>) {
             if (generalInformationPanel.creationDateChooser.date != null) {
                 gi.creationDate = generalInformationPanel.creationDateChooser.date
             }
-            gi.rights = generalInformationPanel.rightsTextField.text
+            gi.rights = generalInformationPanel.rightsField.selectedItem as String
             gi.isAvailable = generalInformationPanel.availabilityCheckBox.isSelected
             gi.url = URL(generalInformationPanel.urlTextField.text)
             gi.format = generalInformationPanel.formatTextField.text
@@ -220,7 +232,7 @@ class GeneralInformationPanel(generalInformation: GeneralInformation) : Box(BoxL
     val studyNameTextField = JTextField(30)
     val identifierTextField = JTextField(30)
     val creationDateChooser = FixedJDateChooser()
-    val rightsTextField = JTextField(30)
+    val rightsField = AutoSuggestField(10)
     val availabilityCheckBox = JCheckBox()
     val urlTextField = JTextField(30)
     val formatTextField = JTextField(30)
@@ -285,7 +297,7 @@ class GeneralInformationPanel(generalInformation: GeneralInformation) : Box(BoxL
         propertiesPanel.add(comp = creationDateChooser, gridy = 4, gridx = 1)
 
         propertiesPanel.add(comp = rightsLabel, gridy = 5, gridx = 0)
-        propertiesPanel.add(comp = rightsTextField, gridy = 5, gridx = 1, gridwidth = 2)
+        propertiesPanel.add(comp = rightsField, gridy = 5, gridx = 1, gridwidth = 2)
 
         availabilityCheckBox.text = availability
         availabilityCheckBox.toolTipText = availabilityTooltip
