@@ -35,6 +35,8 @@ val workbook = XSSFWorkbook("resources/FSKLab_CONFIG_RAKIP_CP.xlsx")
 val rightsVocab = readVocabFromSheet(workbook.getSheet("Rights"))
 val formatsVocab = readVocabFromSheet(workbook.getSheet("Format"))  // TODO: Format sheet is empty -> Talk with Carolina
 val softwareVocab = readVocabFromSheet(workbook.getSheet("Software"))
+val languageWrittenInVocab = readVocabFromSheet(workbook.getSheet("Language written in"))
+val statusVocab = readVocabFromSheet(workbook.getSheet("Status"))  // TODO: Status sheet is empty -> Talk with Carolina
 
 fun readVocabFromSheet(sheet: XSSFSheet) : Set<String> {
     return sheet.filter { it.rowNum != 0 }.map { it.getCell(0).stringCellValue }.filter { it.isNotBlank() }.toSet()
@@ -102,9 +104,10 @@ fun main(args: Array<String>) {
     generalInformationPanel.languageTextField.text = gi.language
     generalInformationPanel.softwareField.setPossibleValues(softwareVocab)
     generalInformationPanel.softwareField.selectedItem = gi.software
-    generalInformationPanel.languageWrittenInField.setPossibleValues(implementationLanguageList.toSet())
+    generalInformationPanel.languageWrittenInField.setPossibleValues(languageWrittenInVocab)
     generalInformationPanel.languageWrittenInField.selectedItem = gi.languageWrittenIn
-    generalInformationPanel.statusTextField.text = gi.status
+    generalInformationPanel.statusField.setPossibleValues(statusVocab)
+    generalInformationPanel.statusField.selectedItem = gi.status
     generalInformationPanel.objectiveTextField.text = gi.objective
     generalInformationPanel.descriptionTextField.text = gi.description
 
@@ -139,7 +142,7 @@ fun main(args: Array<String>) {
             gi.format = generalInformationPanel.formatField.selectedItem as String
             gi.software = generalInformationPanel.softwareField.selectedItem as String?
             gi.languageWrittenIn = generalInformationPanel.languageWrittenInField.selectedItem as String?
-            gi.status = generalInformationPanel.statusTextField.text
+            gi.status = generalInformationPanel.statusField.selectedItem as String?
             gi.objective = generalInformationPanel.objectiveTextField.text
             gi.description = generalInformationPanel.descriptionTextField.text
 
@@ -241,7 +244,7 @@ class GeneralInformationPanel(generalInformation: GeneralInformation) : Box(BoxL
     val languageTextField = JTextField(30)
     val softwareField = AutoSuggestField(10)
     val languageWrittenInField = AutoSuggestField(10)
-    val statusTextField = JTextField(30)
+    val statusField = AutoSuggestField(10)
     val objectiveTextField = JTextField(30)
     val descriptionTextField = JTextField(30)
 
@@ -278,7 +281,7 @@ class GeneralInformationPanel(generalInformation: GeneralInformation) : Box(BoxL
         languageWrittenInLabel.isVisible = false
         languageWrittenInField.isVisible = false
         statusLabel.isVisible = false
-        statusTextField.isVisible = false
+        statusField.isVisible = false
         objectiveLabel.isVisible = false
         objectiveTextField.isVisible = false
         descriptionLabel.isVisible = false
@@ -324,7 +327,7 @@ class GeneralInformationPanel(generalInformation: GeneralInformation) : Box(BoxL
         propertiesPanel.add(comp = languageWrittenInField, gridy = 12, gridx = 1)
 
         propertiesPanel.add(comp = statusLabel, gridy = 13, gridx = 0)
-        propertiesPanel.add(comp = statusTextField, gridy = 13, gridx = 1, gridwidth = 2)
+        propertiesPanel.add(comp = statusField, gridy = 13, gridx = 1, gridwidth = 2)
 
         propertiesPanel.add(comp = objectiveLabel, gridy = 14, gridx = 0)
         propertiesPanel.add(comp = objectiveTextField, gridy = 14, gridx = 1, gridwidth = 2)
@@ -351,7 +354,7 @@ class GeneralInformationPanel(generalInformation: GeneralInformation) : Box(BoxL
             languageWrittenInField.isVisible = showAdvanced
 
             statusLabel.isVisible = showAdvanced
-            statusTextField.isVisible = showAdvanced
+            statusField.isVisible = showAdvanced
 
             objectiveLabel.isVisible = showAdvanced
             objectiveTextField.isVisible = showAdvanced
