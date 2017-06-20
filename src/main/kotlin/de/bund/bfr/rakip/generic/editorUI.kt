@@ -35,7 +35,14 @@ val vocabs = mapOf(
         "Product treatment" to readVocabFromSheet(workbook.getSheet("Product treatment")), // TODO: Empty sheet
         "Country of origin" to readVocabFromSheet(workbook.getSheet("Country of origin")), // TODO: Empty sheet
         "Area of origin" to readVocabFromSheet(workbook.getSheet("Area of origin")), // TODO: Empty sheet
-        "Fisheries area" to readVocabFromSheet(workbook.getSheet("Fisheries area"))  // TODO: Empty sheet
+        "Fisheries area" to readVocabFromSheet(workbook.getSheet("Fisheries area")),
+
+        // Hazard controlled vocabularies
+        "Hazard type" to readVocabFromSheet(workbook.getSheet("Hazard type")),
+        "Hazard name" to readVocabFromSheet(workbook.getSheet("Hazard name")),
+        "Hazard unit" to readVocabFromSheet(workbook.getSheet("Hazard unit")),
+        "Hazard ind sum" to readVocabFromSheet(workbook.getSheet("Hazard ind sum")),
+        "Laboratory country" to readVocabFromSheet(workbook.getSheet("Laboratory country"))
 )
 
 fun readVocabFromSheet(sheet: XSSFSheet): Set<String> {
@@ -935,7 +942,7 @@ class EditProductPanel(product: Product? = null, isAdvanced: Boolean) : JPanel(G
     // TODO: toProduct
     fun toProduct(): Product {
 
-        val envUnit = if (envUnitField.selectedItem == null) "" else envUnitField.selectedItem as String
+        val envUnit = envUnitField.selectedItem as? String ?: ""
 
         val product = Product(environmentName = envNameField.selectedItem as String, environmentUnit = envUnit)
         envDescriptionTextArea?.text?.let { product.environmentDescription = it }
@@ -1068,10 +1075,10 @@ class EditHazardPanel(hazard: Hazard? = null, isAdvanced: Boolean) : JPanel(Grid
     }
 
     // Fields. Null if simple mode.
-    private val hazardTypeComboBox = JComboBox<String>()
-    private val hazardNameComboBox = JComboBox<String>()
+    private val hazardTypeField = AutoSuggestField(10)
+    private val hazardNameField = AutoSuggestField(10)
     private val hazardDescriptionTextArea = if (isAdvanced) JTextArea(5, 30) else null
-    private val hazardUnitComboBox = JComboBox<String>()
+    private val hazardUnitField = AutoSuggestField(10)
     private val adverseEffectTextField = if (isAdvanced) JTextField(30) else null
     private val originTextField = if (isAdvanced) JTextField(30) else null
     private val bmdTextField = if (isAdvanced) JTextField(30) else null
@@ -1081,9 +1088,9 @@ class EditHazardPanel(hazard: Hazard? = null, isAdvanced: Boolean) : JPanel(Grid
     private val acceptableOperatorTextField = if (isAdvanced) JTextField(30) else null
     private val acuteReferenceDoseTextField = if (isAdvanced) JTextField(30) else null
     private val acceptableDailyIntakeTextField = if (isAdvanced) JTextField(30) else null
-    private val indSumTextField = if (isAdvanced) JTextField(30) else null
+    private val indSumField = if (isAdvanced) AutoSuggestField(10) else null
     private val labNameTextField = if (isAdvanced) JTextField(30) else null
-    private val labCountryComboBox = if (isAdvanced) JComboBox<String>() else null
+    private val labCountryField = if (isAdvanced) AutoSuggestField(10) else null
     private val detectionLimitTextField = if (isAdvanced) JTextField(30) else null
     private val quantificationLimitTextField = if (isAdvanced) JTextField(30) else null
     private val leftCensoredDataTextField = if (isAdvanced) JTextField(30) else null
@@ -1092,10 +1099,10 @@ class EditHazardPanel(hazard: Hazard? = null, isAdvanced: Boolean) : JPanel(Grid
     init {
         // Populate interface if `hazard` is passed
         hazard?.let {
-            hazardTypeComboBox.selectedItem = it.hazardType
-            hazardNameComboBox.selectedItem = it.hazardName
+            hazardTypeField.selectedItem = it.hazardType
+            hazardNameField.selectedItem = it.hazardName
             hazardDescriptionTextArea?.text = it.hazardDescription
-            hazardUnitComboBox.selectedItem = it.hazardUnit
+            hazardUnitField.selectedItem = it.hazardUnit
             adverseEffectTextField?.text = it.adverseEffect
             originTextField?.text = it.origin
             bmdTextField?.text = it.benchmarkDose
@@ -1103,10 +1110,10 @@ class EditHazardPanel(hazard: Hazard? = null, isAdvanced: Boolean) : JPanel(Grid
             noObservedAdverseTextField?.text = it.noObservedAdverse
             acceptableOperatorTextField?.text = it.acceptableOperator
             acuteReferenceDoseTextField?.text = it.acuteReferenceDose
-            indSumTextField?.text = it.hazardIndSum
+            indSumField?.selectedItem = it.hazardIndSum
             acceptableDailyIntakeTextField?.text = it.acceptableDailyIntake
             labNameTextField?.text = it.laboratoryName
-            labCountryComboBox?.selectedItem = it.laboratoryCountry
+            labCountryField?.selectedItem = it.laboratoryCountry
             detectionLimitTextField?.text = it.detectionLimit
             quantificationLimitTextField?.text = it.quantificationLimit
             leftCensoredDataTextField?.text = it.leftCensoredData
@@ -1118,8 +1125,7 @@ class EditHazardPanel(hazard: Hazard? = null, isAdvanced: Boolean) : JPanel(Grid
 
     private fun initUI() {
 
-        val pairList = mutableListOf<Pair<JLabel, JComponent>>()
-
+        // Create labels
         val hazardTypeLabel = createLabel(text = hazardType, tooltip = hazardTypeTooltip)
         val hazardNameLabel = createLabel(text = hazardName, tooltip = hazardNameTooltip)
         val hazardDescriptionLabel = createLabel(text = hazardDescription, tooltip = hazardDescriptionTooltip)
@@ -1141,10 +1147,18 @@ class EditHazardPanel(hazard: Hazard? = null, isAdvanced: Boolean) : JPanel(Grid
         val leftCensoredDataLabel = createLabel(text = leftCensoredData, tooltip = leftCensoredDataTooltip)
         val contaminationRangeLabel = createLabel(text = contaminationRange, tooltip = contaminationRangeTooltip)
 
-        pairList.add(Pair(first = hazardTypeLabel, second = hazardTypeComboBox))
-        pairList.add(Pair(first = hazardNameLabel, second = hazardNameComboBox))
+        // Init combo boxes
+        hazardTypeField.setPossibleValues(vocabs["Hazard type"])
+        hazardNameField.setPossibleValues(vocabs["Hazard name"])
+        hazardUnitField.setPossibleValues(vocabs["Hazard unit"])
+        indSumField?.setPossibleValues(vocabs["Hazard ind sum"])
+        labCountryField?.setPossibleValues(vocabs["Laboratory country"])
+
+        val pairList = mutableListOf<Pair<JLabel, JComponent>>()
+        pairList.add(Pair(first = hazardTypeLabel, second = hazardTypeField))
+        pairList.add(Pair(first = hazardNameLabel, second = hazardNameField))
         hazardDescriptionTextArea?.let { pairList.add(Pair(first = hazardDescriptionLabel, second = it)) }
-        pairList.add(Pair(first = hazardUnitLabel, second = hazardUnitComboBox))
+        pairList.add(Pair(first = hazardUnitLabel, second = hazardUnitField))
         adverseEffectTextField?.let { pairList.add(Pair(first = adverseEffectLabel, second = it)) }
         originTextField?.let { pairList.add(Pair(first = originLabel, second = it)) }
         bmdTextField?.let { pairList.add(Pair(first = bmdLabel, second = it)) }
@@ -1154,9 +1168,9 @@ class EditHazardPanel(hazard: Hazard? = null, isAdvanced: Boolean) : JPanel(Grid
         acceptableOperatorTextField?.let { pairList.add(Pair(first = acceptableOperatorLabel, second = it)) }
         acuteReferenceDoseTextField?.let { pairList.add(Pair(first = acuteReferenceDoseLabel, second = it)) }
         acceptableDailyIntakeTextField?.let { pairList.add(Pair(first = acceptableDailyIntakeLabel, second = it)) }
-        indSumTextField?.let { pairList.add(Pair(first = indSumLabel, second = it)) }
+        indSumField?.let { pairList.add(Pair(first = indSumLabel, second = it)) }
         labNameTextField?.let { pairList.add(Pair(first = labNameLabel, second = it)) }
-        labCountryComboBox?.let { pairList.add(Pair(first = labCountryLabel, second = it)) }
+        labCountryField?.let { pairList.add(Pair(first = labCountryLabel, second = it)) }
         detectionLimitTextField?.let { pairList.add(Pair(first = detectionLimitLabel, second = it)) }
         quantificationLimitTextField?.let { pairList.add(Pair(first = quantificationLimitLabel, second = it)) }
         leftCensoredDataTextField?.let { pairList.add(Pair(first = leftCensoredDataLabel, second = it)) }
@@ -1171,9 +1185,9 @@ class EditHazardPanel(hazard: Hazard? = null, isAdvanced: Boolean) : JPanel(Grid
         TODO: safe-cast comboboxes temporarily to empty strings.
         Should be validated so that one item is always selected
          */
-        val type = if (hazardTypeComboBox.selectedItem == null) "" else hazardTypeComboBox.selectedItem as String
-        val hazardName = if (hazardNameComboBox.selectedItem == null) "" else hazardNameComboBox.selectedItem as String
-        val hazardUnit = if (hazardUnitComboBox.selectedItem == null) "" else hazardUnitComboBox.selectedItem as String
+        val type = hazardTypeField.selectedItem as? String ?: ""
+        val hazardName = hazardNameField.selectedItem as? String ?: ""
+        val hazardUnit = hazardUnitField.selectedItem as? String ?: ""
 
         val hazard = Hazard(hazardType = type, hazardName = hazardName, hazardUnit = hazardUnit)
 
@@ -1186,13 +1200,9 @@ class EditHazardPanel(hazard: Hazard? = null, isAdvanced: Boolean) : JPanel(Grid
         hazard.acceptableOperator = acceptableOperatorTextField?.text
         hazard.acuteReferenceDose = acuteReferenceDoseTextField?.text
         hazard.acceptableDailyIntake = acceptableDailyIntakeTextField?.text
-        // TODO: hazardIndSum
+        hazard.hazardIndSum = indSumField?.selectedItem as? String ?: ""
         hazard.laboratoryName = labNameTextField?.text
-        hazard.laboratoryCountry = if (labCountryComboBox?.selectedItem == null) {
-            ""
-        } else {
-            labCountryComboBox.selectedItem as String
-        }
+        hazard.laboratoryCountry = labCountryField?.selectedItem as? String ?: ""
         hazard.detectionLimit = detectionLimitTextField?.text
         hazard.quantificationLimit = quantificationLimitTextField?.text
         hazard.leftCensoredData = leftCensoredDataTextField?.text
@@ -1879,7 +1889,7 @@ class EditDietaryAssessmentMethodPanel(dietaryAssessmentMethod: DietaryAssessmen
     fun toDietaryAssessmentMethod(): DietaryAssessmentMethod {
 
         // TODO: cast temporarily null values to empty string and 0 (SHOULD be validated)
-        val dataCollectionTool = if (dataCollectionToolComboBox.selectedItem == null) "" else dataCollectionToolComboBox.selectedItem as String
+        val dataCollectionTool = dataCollectionToolComboBox.selectedItem as? String ?: ""
         val nonConsecutiveOneDays = nonConsecutiveOneDayTextField.text?.toIntOrNull() ?: 0
 
         val method = DietaryAssessmentMethod(collectionTool = dataCollectionTool, numberOfNonConsecutiveOneDay = nonConsecutiveOneDays)
@@ -1899,7 +1909,7 @@ class EditAssayPanel(assay: Assay? = null, isAdvanced: Boolean) : JPanel(GridBag
         val assayNameTooltip = "A name given to the assay"
 
         val assayDescription = "Description"
-        val assayDescriptionTooltip = "General assayDescription of the assay. Corresponds to the Protocol REF in ISA"
+        val assayDescriptionTooltip = "General description of the assay. Corresponds to the Protocol REF in ISA"
     }
 
     val nameTextField = JTextField(30)
