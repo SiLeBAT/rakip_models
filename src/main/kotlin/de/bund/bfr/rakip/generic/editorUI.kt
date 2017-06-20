@@ -34,6 +34,7 @@ val workbook = XSSFWorkbook("resources/FSKLab_CONFIG_RAKIP_CP.xlsx")
 
 val rightsVocab = readVocabFromSheet(workbook.getSheet("Rights"))
 val formatsVocab = readVocabFromSheet(workbook.getSheet("Format"))  // TODO: Format sheet is empty -> Talk with Carolina
+val softwareVocab = readVocabFromSheet(workbook.getSheet("Software"))
 
 fun readVocabFromSheet(sheet: XSSFSheet) : Set<String> {
     return sheet.filter { it.rowNum != 0 }.map { it.getCell(0).stringCellValue }.filter { it.isNotBlank() }.toSet()
@@ -99,7 +100,7 @@ fun main(args: Array<String>) {
     generalInformationPanel.formatField.setPossibleValues(formatsVocab.toSet())
     generalInformationPanel.formatField.selectedItem = gi.format
     generalInformationPanel.languageTextField.text = gi.language
-    generalInformationPanel.softwareField.setPossibleValues(softwareList.toSet())
+    generalInformationPanel.softwareField.setPossibleValues(softwareVocab)
     generalInformationPanel.softwareField.selectedItem = gi.software
     generalInformationPanel.languageWrittenInField.setPossibleValues(implementationLanguageList.toSet())
     generalInformationPanel.languageWrittenInField.selectedItem = gi.languageWrittenIn
