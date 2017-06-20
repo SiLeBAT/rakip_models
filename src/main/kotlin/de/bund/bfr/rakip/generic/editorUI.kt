@@ -15,21 +15,6 @@ import javax.swing.*
 import javax.swing.table.DefaultTableCellRenderer
 import javax.swing.table.DefaultTableModel
 
-fun readControlledVocabulary(filename: String): Array<String> {
-    val allLines = File(filename).readLines()
-    // Skip headers
-    val dataLines = allLines.subList(fromIndex = 2, toIndex = allLines.size)
-    val controlledVocabulary = dataLines.map { it.split(",")[1] }
-            .map { it.removeSurrounding(prefix = "\"", suffix = "\"") }.toTypedArray()
-
-    return controlledVocabulary
-}
-
-val pmfOrganisms = readControlledVocabulary("resources/pmf_organisms.csv")
-val pmfEnvironments = readControlledVocabulary("resources/pmf_environment.csv")
-val softwareList = readControlledVocabulary("resources/software.csv")
-val implementationLanguageList = readControlledVocabulary("resources/implementation_languages.csv")
-
 val workbook = XSSFWorkbook("resources/FSKLab_CONFIG_RAKIP_CP.xlsx")
 
 val rightsVocab = readVocabFromSheet(workbook.getSheet("Rights"))
