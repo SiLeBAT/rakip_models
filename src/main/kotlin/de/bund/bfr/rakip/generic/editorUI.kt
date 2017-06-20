@@ -35,8 +35,8 @@ val workbook = XSSFWorkbook("resources/FSKLab_CONFIG_RAKIP_CP.xlsx")
 val rightsVocab = readVocabFromSheet(workbook.getSheet("Rights"))
 val formatsVocab = readVocabFromSheet(workbook.getSheet("Format"))  // TODO: Format sheet is empty -> Talk with Carolina
 
-fun readVocabFromSheet(sheet: XSSFSheet) : List<String> {
-    return sheet.filter { it.rowNum != 0 }.map { it.getCell(0).stringCellValue }.filter { it.isNotBlank() }.toList()
+fun readVocabFromSheet(sheet: XSSFSheet) : Set<String> {
+    return sheet.filter { it.rowNum != 0 }.map { it.getCell(0).stringCellValue }.filter { it.isNotBlank() }.toSet()
 }
 
 fun main(args: Array<String>) {
@@ -96,7 +96,8 @@ fun main(args: Array<String>) {
     generalInformationPanel.rightsField.selectedItem = gi.rights
     generalInformationPanel.availabilityCheckBox.isSelected = gi.isAvailable
     generalInformationPanel.urlTextField.text = gi.url.toString()
-    generalInformationPanel.formatTextField.text = gi.format
+    generalInformationPanel.formatField.setPossibleValues(formatsVocab.toSet())
+    generalInformationPanel.formatField.selectedItem = gi.format
     generalInformationPanel.languageTextField.text = gi.language
     generalInformationPanel.softwareField.setPossibleValues(softwareList.toSet())
     generalInformationPanel.softwareField.selectedItem = gi.software
@@ -134,7 +135,7 @@ fun main(args: Array<String>) {
             gi.rights = generalInformationPanel.rightsField.selectedItem as String
             gi.isAvailable = generalInformationPanel.availabilityCheckBox.isSelected
             gi.url = URL(generalInformationPanel.urlTextField.text)
-            gi.format = generalInformationPanel.formatTextField.text
+            gi.format = generalInformationPanel.formatField.selectedItem as String
             gi.software = generalInformationPanel.softwareField.selectedItem as String?
             gi.languageWrittenIn = generalInformationPanel.languageWrittenInField.selectedItem as String?
             gi.status = generalInformationPanel.statusTextField.text
@@ -235,7 +236,7 @@ class GeneralInformationPanel(generalInformation: GeneralInformation) : Box(BoxL
     val rightsField = AutoSuggestField(10)
     val availabilityCheckBox = JCheckBox()
     val urlTextField = JTextField(30)
-    val formatTextField = JTextField(30)
+    val formatField = AutoSuggestField(10)
     val languageTextField = JTextField(30)
     val softwareField = AutoSuggestField(10)
     val languageWrittenInField = AutoSuggestField(10)
@@ -268,7 +269,7 @@ class GeneralInformationPanel(generalInformation: GeneralInformation) : Box(BoxL
         urlLabel.isVisible = false
         urlTextField.isVisible = false
         formatLabel.isVisible = false
-        formatTextField.isVisible = false
+        formatField.isVisible = false
         languageLabel.isVisible = false
         languageTextField.isVisible = false
         softwareLabel.isVisible = false
@@ -307,7 +308,7 @@ class GeneralInformationPanel(generalInformation: GeneralInformation) : Box(BoxL
         propertiesPanel.add(comp = urlTextField, gridy = 7, gridx = 1, gridwidth = 2)
 
         propertiesPanel.add(comp = formatLabel, gridy = 8, gridx = 0)
-        propertiesPanel.add(comp = formatTextField, gridy = 8, gridx = 1, gridwidth = 2)
+        propertiesPanel.add(comp = formatField, gridy = 8, gridx = 1, gridwidth = 2)
 
         val referencePanel = ReferencePanel(refs = gi.reference, isAdvanced = advancedCheckBox.isSelected)
         propertiesPanel.add(comp = referencePanel, gridy = 9, gridx = 0, gridwidth = 3)
@@ -337,7 +338,7 @@ class GeneralInformationPanel(generalInformation: GeneralInformation) : Box(BoxL
             urlTextField.isVisible = showAdvanced
 
             formatLabel.isVisible = showAdvanced
-            formatTextField.isVisible = showAdvanced
+            formatField.isVisible = showAdvanced
 
             languageLabel.isVisible = showAdvanced
             languageTextField.isVisible = showAdvanced
