@@ -959,8 +959,8 @@ class EditProductPanel(product: Product? = null, isAdvanced: Boolean) : JPanel(G
         val expirationDateLabel = createLabel(text = expirationDate, tooltip = expirationDateTooltip)
 
         // Init combo boxes
-        envNameField.setPossibleValues(vocabs.get("Environment name"))
-        envUnitField.setPossibleValues(vocabs.get("Environment unit"))
+        envNameField.setPossibleValues(vocabs.get("Product-matrix name"))
+        envUnitField.setPossibleValues(vocabs.get("Product-matrix unit"))
         productionMethodComboBox?.let { vocabs["Method of production"]?.forEach(it::addItem) }
         packagingComboBox?.let { vocabs["Packaging"]?.forEach(it::addItem) }
         productTreatmentComboBox?.let { vocabs["Product treatment"]?.forEach(it::addItem) }
