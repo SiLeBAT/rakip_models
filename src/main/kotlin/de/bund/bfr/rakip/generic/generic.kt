@@ -80,7 +80,6 @@ data class Product(
         var fisheriesArea: String? = null,
         var productionDate: Date? = null,
         var expirationDate: Date? = null,
-        var moisturePercentage: Double? = null,  // TODO: move moisturePercentage to StudySample
         var fatPercentage: Double? = null  // TODO: move fatPercentage to StudySample
 )
 
@@ -175,6 +174,7 @@ data class Study(
 
 data class  StudySample(
         var sample: String,
+        var moisturePercentage: Double? = null,
         var collectionProtocol: String,
         var samplingStrategy: String? = null,
         var samplingProgramType: String? = null,
