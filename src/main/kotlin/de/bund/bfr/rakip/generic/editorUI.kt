@@ -82,7 +82,7 @@ fun readVocabFromSheet(workbook: Workbook, sheetname: String): Set<String> {
                 try {
                     it.stringCellValue
                 } catch (e: Exception) {
-                    logger.warning("Controlled vocabulary ${sheet.sheetName}: wrong value ${it}")
+                    logger.warning("Controlled vocabulary ${sheet.sheetName}: wrong value $it")
                     ""
                 }
             }
@@ -720,8 +720,8 @@ class ScopePanel(val scope: Scope) : Box(BoxLayout.PAGE_AXIS) {
     val populationButton = JButton()
     val commentField = JTextArea(5, 30)
     val dateChooser = FixedJDateChooser()
-    val regionField = JTextField(30)
-    val countryField = JTextField(30)
+    val regionField = AutoSuggestField(10)
+    val countryField = AutoSuggestField(10)
 
     val advancedCheckBox = JCheckBox("Advanced")
 
@@ -746,6 +746,14 @@ class ScopePanel(val scope: Scope) : Box(BoxLayout.PAGE_AXIS) {
     }
 
     init {
+
+        // init combo boxes
+        regionField.setPossibleValues(vocabs["Region"])
+        countryField.setPossibleValues(vocabs["Country"])
+
+        regionField.selectedItem = scope.region.firstOrNull()
+        countryField.selectedItem = scope.country.firstOrNull()
+
         initUI()
     }
 
