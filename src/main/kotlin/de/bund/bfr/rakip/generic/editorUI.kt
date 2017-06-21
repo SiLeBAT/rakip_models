@@ -3,7 +3,7 @@ import com.toedter.calendar.JDateChooser
 import de.bund.bfr.knime.ui.AutoSuggestField
 import de.bund.bfr.rakip.generic.*
 import ezvcard.VCard
-import org.apache.poi.xssf.usermodel.XSSFSheet
+import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.awt.*
 import java.awt.event.WindowEvent
@@ -17,50 +17,77 @@ import javax.swing.table.DefaultTableModel
 
 val logger: Logger = Logger.getAnonymousLogger()
 
-val workbook = XSSFWorkbook("resources/FSKLab_Config_Controlled Vocabularies.xlsx")
+fun loadVocabularies(): Map<String, Set<String>> {
 
-val vocabs = mapOf(
-        // General information controlled vocabularies
-        "Rights" to readVocabFromSheet(workbook.getSheet("Rights")),
-        "Format" to readVocabFromSheet(workbook.getSheet("Format")),
-        "Software" to readVocabFromSheet(workbook.getSheet("Software")),
-        "Language written in" to readVocabFromSheet(workbook.getSheet("Language written in")),
-        "Status" to readVocabFromSheet(workbook.getSheet("Status")), // TODO: Status sheet is empty -> Ask Carolina
+    val workbook = XSSFWorkbook("resources/FSKLab_Config_Controlled Vocabularies.xlsx")
+    val vocabs = listOf(
 
-        // Product controlled vocabularies
-        "Environment name" to readVocabFromSheet(workbook.getSheet("Product-matrix name")),
-        "Environment unit" to readVocabFromSheet(workbook.getSheet("Product-matrix unit")),
-        "Method of production" to readVocabFromSheet(workbook.getSheet("Method of production")), // TODO: Empty sheet
-        "Packaging" to readVocabFromSheet(workbook.getSheet("Packaging")), // TODO: Empty sheet
-        "Product treatment" to readVocabFromSheet(workbook.getSheet("Product treatment")), // TODO: Empty sheet
-        "Country of origin" to readVocabFromSheet(workbook.getSheet("Country of origin")), // TODO: Empty sheet
-        "Area of origin" to readVocabFromSheet(workbook.getSheet("Area of origin")), // TODO: Empty sheet
-        "Fisheries area" to readVocabFromSheet(workbook.getSheet("Fisheries area")),
+            // GeneralInformation controlled vocabularies
+            "Rights", "Format", "Software", "Language written in", "Status",
 
-        // Hazard controlled vocabularies
-        "Hazard type" to readVocabFromSheet(workbook.getSheet("Hazard type")),
-        "Hazard name" to readVocabFromSheet(workbook.getSheet("Hazard name")),
-        "Hazard unit" to readVocabFromSheet(workbook.getSheet("Hazard unit")),
-        "Hazard ind sum" to readVocabFromSheet(workbook.getSheet("Hazard ind sum")),
-        "Laboratory country" to readVocabFromSheet(workbook.getSheet("Laboratory country"))
-)
+            // Product controlled vocabularies
+            "Product-matrix name", "Product-matrix unit", "Method of production", "Packaging", "Product treatment",
+            "Country of origin", "Area of origin", "Fisheries area",
 
-fun readVocabFromSheet(sheet: XSSFSheet): Set<String> {
-    val vocab = mutableSetOf<String>()
-    for (row in sheet) {
-        if (row.rowNum == 0) continue  // Skip header
-        val cell = row.getCell(0) ?: continue  // Skip empty cells
+            // Hazard controlled vocabularies
+            "Hazard type", "Hazard name", "Hazard unit", "Hazard ind sum", "Laboratory country",
 
-        // Replace faulty cells with "" that are later discarded
-        val cellValue = try {
-            cell.stringCellValue
-        } catch (e: Exception) {
-            logger.warning("Controlled vocabulary ${sheet.sheetName}: wrong value ${cell}")
-            ""
-        }
+            // PopulationGroup controlled vocabularies
+            "Region", "Country",
 
-        if (cellValue.isNotBlank()) vocab.add(cellValue)
+            // DataBackground controlled vocabularies
+            "Laboratory accreditation",
+
+            // Study controlled vocabularies
+            "Study Design Type", "Study Assay Measurement Type", "Study Assay Technology Type",
+            "Accreditation procedure Ass.Tec", "Study Protocol Type", "Study Protocol Parameters Name",
+            "Study Protocol Components Type",
+
+            // StudySample controlled vocabularies
+            "Sampling strategy", "Type of sampling program", "Sampling method", "Lot size unit", "Sampling point",
+
+            // DietaryAssessmentMethod controlled vocabularies
+            "Method. tool to collect data", "Food descriptors",
+
+            // Parameter controlled vocabularies
+            "Parameter classification", "Parameter unit", "Parameter type", "Parameter unit category",
+            "Parameter data type", "Parameter source", "Parameter subject", "Parameter distribution"
+    ).associateBy({ it }, { readVocabFromSheet(workbook = workbook, sheetname = it) })
+
+    workbook.close()
+
+    return vocabs
+}
+
+val vocabs = loadVocabularies()
+
+/**
+ * Read controlled vocabulary from spreadsheet.
+ *
+ * @return Set with controlled vocabulary. If the sheet is not found returns empty set.
+ */
+fun readVocabFromSheet(workbook: Workbook, sheetname: String): Set<String> {
+
+    val sheet = workbook.getSheet(sheetname)
+    if (sheet == null) {
+        logger.warning("Spreadsheet not found: ${sheetname}")
+        return emptySet<String>()
     }
+
+    val vocab = sheet
+            .filter { it.rowNum != 0 } // Skip header
+            .mapNotNull { it.getCell(0) }
+            // Replace faulty cells with "" that are later discarded
+            .map {
+                try {
+                    it.stringCellValue
+                } catch (e: Exception) {
+                    logger.warning("Controlled vocabulary ${sheet.sheetName}: wrong value ${it}")
+                    ""
+                }
+            }
+            .filter { it.isNotBlank() }  // Skip empty cells
+            .toSet()
 
     return vocab
 }
@@ -118,18 +145,18 @@ fun main(args: Array<String>) {
     generalInformationPanel.studyNameTextField.text = gi.name
     generalInformationPanel.identifierTextField.text = gi.identifier
     generalInformationPanel.creationDateChooser.date = gi.creationDate
-    generalInformationPanel.rightsField.setPossibleValues(vocabs.get("Rights"))
+    generalInformationPanel.rightsField.setPossibleValues(vocabs["Rights"])
     generalInformationPanel.rightsField.selectedItem = gi.rights
     generalInformationPanel.availabilityCheckBox.isSelected = gi.isAvailable
     generalInformationPanel.urlTextField.text = gi.url.toString()
-    generalInformationPanel.formatField.setPossibleValues(vocabs.get("Format"))
+    generalInformationPanel.formatField.setPossibleValues(vocabs["Format"])
     generalInformationPanel.formatField.selectedItem = gi.format
     generalInformationPanel.languageTextField.text = gi.language
-    generalInformationPanel.softwareField.setPossibleValues(vocabs.get("Software"))
+    generalInformationPanel.softwareField.setPossibleValues(vocabs["Software"])
     generalInformationPanel.softwareField.selectedItem = gi.software
-    generalInformationPanel.languageWrittenInField.setPossibleValues(vocabs.get("Language writte in"))
+    generalInformationPanel.languageWrittenInField.setPossibleValues(vocabs["Language writte in"])
     generalInformationPanel.languageWrittenInField.selectedItem = gi.languageWrittenIn
-    generalInformationPanel.statusField.setPossibleValues(vocabs.get("Status"))
+    generalInformationPanel.statusField.setPossibleValues(vocabs["Status"])
     generalInformationPanel.statusField.selectedItem = gi.status
     generalInformationPanel.objectiveTextField.text = gi.objective
     generalInformationPanel.descriptionTextField.text = gi.description
@@ -877,7 +904,7 @@ class EditProductPanel(product: Product? = null, isAdvanced: Boolean) : JPanel(G
             KNIME widget would be a temporary solution but ideally a new widget based on the KNIME widget and including
                the autocompletion feature should be developed.
             */
-            originCountryField?.selectedItem = it.countryOfOrigin
+            originCountryField?.selectedItem = it.originCountry
             originAreaField?.selectedItem = it.areaOfOrigin
             fisheriesAreaField?.selectedItem = it.fisheriesArea
             productionDateChooser?.date = it.productionDate
@@ -942,14 +969,15 @@ class EditProductPanel(product: Product? = null, isAdvanced: Boolean) : JPanel(G
     // TODO: toProduct
     fun toProduct(): Product {
 
+        val envName = envNameField.selectedItem as? String ?: ""
         val envUnit = envUnitField.selectedItem as? String ?: ""
 
-        val product = Product(environmentName = envNameField.selectedItem as String, environmentUnit = envUnit)
+        val product = Product(environmentName = envName, environmentUnit = envUnit)
         envDescriptionTextArea?.text?.let { product.environmentDescription = it }
         packagingComboBox?.selectedObjects?.forEach { product.packaging.add(it as String) }
 //        productTreatmentComboBox?.  // TODO: product treatment
 //        productTreatmentComboBox?.selectedObjects?.forEach { product.}
-        product.countryOfOrigin = originCountryField?.selectedItem as String?
+        product.originCountry = originCountryField?.selectedItem as String?
         product.areaOfOrigin = originAreaField?.selectedItem as String?
         product.fisheriesArea = fisheriesAreaField?.selectedItem as String?
         product.productionDate = productionDateChooser?.date
@@ -1325,6 +1353,8 @@ class EditPopulationGroupPanel(populationGroup: PopulationGroup? = null, isAdvan
     }
 
     private fun initUI() {
+
+        // Create labels
         val populationNameLabel = createLabel(text = populationName, tooltip = populationNameTooltip)
         val targetPopulationLabel = createLabel(text = targetPopulation, tooltip = targetPopulationTooltip)
         val populationSpanLabel = createLabel(text = populationSpan, tooltip = populationSpanTooltip)
@@ -1338,6 +1368,10 @@ class EditPopulationGroupPanel(populationGroup: PopulationGroup? = null, isAdvan
         val countryLabel = createLabel(text = country, tooltip = countryTooltip)
         val riskAndPopulationLabel = createLabel(text = riskAndPopulation, tooltip = riskAndPopulationTooltip)
         val seasonLabel = createLabel(text = season, tooltip = seasonTooltip)
+
+        // init combo boxes
+        regionComboBox?.let { vocabs["Region"]?.forEach(it::addItem) }
+        countryComboBox?.let { vocabs["Country"]?.forEach(it::addItem) }
 
         val pairList = mutableListOf<Pair<JLabel, JComponent>>()
         pairList.add(Pair(first = populationNameLabel, second = populationNameTextField))
@@ -1388,13 +1422,13 @@ class DataBackgroundPanel(var dataBackground: DataBackground? = null) : Box(BoxL
 
     val advancedCheckBox = JCheckBox("Advanced")
 
+    val laboratoryAccreditationField = AutoSuggestField(10)
+
     init {
         initUI()
     }
 
     private fun initUI() {
-
-        val propertiesPanel = JPanel(GridBagLayout())
 
         val studyPanel = StudyPanel()
         studyPanel.border = BorderFactory.createTitledBorder("Study")
@@ -1427,6 +1461,8 @@ class DataBackgroundPanel(var dataBackground: DataBackground? = null) : Box(BoxL
             }
         }
 
+        laboratoryAccreditationField.setPossibleValues(vocabs["Laboratory accreditation"])
+
         val assayButton = JButton()
         assayButton.toolTipText = "Click me to add Assay"
         assayButton.addActionListener { _ ->
@@ -1441,6 +1477,8 @@ class DataBackgroundPanel(var dataBackground: DataBackground? = null) : Box(BoxL
             }
         }
 
+        val propertiesPanel = JPanel(GridBagLayout())
+
         propertiesPanel.add(comp = studyPanel, gridy = 0, gridx = 0, gridwidth = 3)
         propertiesPanel.add(comp = JLabel(studySample), gridy = 1, gridx = 0)
         propertiesPanel.add(comp = studySampleButton, gridy = 1, gridx = 1)
@@ -1449,6 +1487,7 @@ class DataBackgroundPanel(var dataBackground: DataBackground? = null) : Box(BoxL
         propertiesPanel.add(comp = dietaryAssessmentMethodButton, gridy = 2, gridx = 1)
 
         propertiesPanel.add(comp = JLabel(laboratoryAccreditation), gridy = 3, gridx = 0)
+        propertiesPanel.add(comp = laboratoryAccreditationField, gridy = 3, gridx = 1)
 
         propertiesPanel.add(comp = JLabel(assay), gridy = 4, gridx = 0)
         propertiesPanel.add(comp = assayButton, gridy = 4, gridx = 1)
@@ -1474,19 +1513,22 @@ class StudyPanel(study: Study? = null) : JPanel(GridBagLayout()) {
         val studyTitle = "Study title"
         val studyTitleTooltip = "A title for the Study."
 
-        val studyDescription = "Study assayDescription"
+        val studyDescription = "Study description"
         val studyDescriptionTooltip = "A brief assayDescription of the study aims."
 
         val studyDesignType = "Study design type"
         val studyDesignTypeTooltip = "The type of study design being employed"
 
-        val studyAssayMeasurements = "Study assay measurements"
-        val studyAssayMeasurementsTooltip = "The measurement being observed in this assay"
+        val studyAssayMeasurementsType = "Study assay measurements Type"
+        val studyAssayMeasurementsTypeTooltip = "The measurement being observed in this assay"
 
-        val studyAssayTechnology = "Study assay technology"
-        val studyAssayTechnologyTooltip = "The technology being employed to observe this measurement"
+        val studyAssayTechnologyType = "Study Assay Technology Type"
+        val studyAssayTechnologyTypeTooltip = "The technology being employed to observe this measurement"
 
-        val accreditationProcedure = "Accreditation procedure"
+        val studyAssayTechnologyPlatform = "Study Assay Technology Platform"
+        val studyAssayTechnologyPlatformTooltip = "The technology platform used"
+
+        val accreditationProcedure = "<html><p>Accreditation procedure for<p>the assay technology</html>"
         val accreditationProcedureTooltip = "The type of study design being employed"
 
         val studyProtocolName = "Study protocol name"
@@ -1509,11 +1551,11 @@ class StudyPanel(study: Study? = null) : JPanel(GridBagLayout()) {
         val studyProtocolVersion = "Study protocol version"
         val studyProtocolVersionTooltip = "The version of the protocol used, where applicable."
 
-        val studyProtocolParameters = "Study protocol parameters"
+        val studyProtocolParameters = "Study protocol parameters name"
         val studyProtocolParametersTooltip = "The parameters used when executing this protocol."
 
-        val studyProtocolComponents = "Study protocol components"
-        val studyProtocolComponentsTooltip = "The components used when carrying out this protocol."
+        val studyProtocolComponentsType = "Study protocol components"
+        val studyProtocolComponentsTypeTooltip = "The components used when carrying out this protocol."
     }
 
     val studyIdentifierLabel = createLabel(text = studyIdentifier, tooltip = studyIdentifierTooltip)
@@ -1526,22 +1568,25 @@ class StudyPanel(study: Study? = null) : JPanel(GridBagLayout()) {
     val studyDescriptionTextArea = JTextArea(5, 30)
 
     val studyDesignTypeLabel = createLabel(text = studyDesignType, tooltip = studyDesignTypeTooltip)
-    val studyDesignTypeComboBox = JComboBox<String>()
+    val studyDesignTypeField = AutoSuggestField(10)
 
-    val studyAssayMeasurementsLabel = createLabel(text = studyAssayMeasurements, tooltip = studyAssayMeasurementsTooltip)
-    val studyAssayMeasurementsComboBox = JComboBox<String>()
+    val studyAssayMeasurementsTypeLabel = createLabel(text = studyAssayMeasurementsType, tooltip = studyAssayMeasurementsTypeTooltip)
+    val studyAssayMeasurementsTypeField = AutoSuggestField(10)
 
-    val studyAssayTechnologyLabel = createLabel(text = studyAssayTechnology, tooltip = studyAssayTechnologyTooltip)
-    val studyAssayTechnologyComboBox = JComboBox<String>()
+    val studyAssayTechnologyTypeLabel = createLabel(text = studyAssayTechnologyType, tooltip = studyAssayTechnologyTypeTooltip)
+    val studyAssayTechnologyTypeField = AutoSuggestField(10)
+
+    val studyAssayTechnologyPlatformLabel = createLabel(text = studyAssayTechnologyPlatform, tooltip = studyAssayTechnologyPlatformTooltip)
+    val studyAssayTechnologyPlatformTextField = JTextField(30)
 
     val accreditationProcedureLabel = createLabel(text = accreditationProcedure, tooltip = accreditationProcedureTooltip)
-    val accreditationProcedureComboBox = JComboBox<String>()
+    val accreditationProcedureField = AutoSuggestField(10)
 
     val studyProtocolNameLabel = createLabel(text = studyProtocolName, tooltip = studyProtocolNameTooltip)
     val studyProtocolNameTextField = JTextField(30)
 
     val studyProtocolTypeLabel = createLabel(text = studyProtocolType, tooltip = studyProtocolTypeTooltip)
-    val studyProtocolTypeComboBox = JComboBox<String>()
+    val studyProtocolTypeField = AutoSuggestField(10)
 
     val studyProtocolDescriptionLabel = createLabel(text = studyProtocolDescription, tooltip = studyProtocolDescriptionTooltip)
     val studyProtocolDescriptionTextField = JTextField(30)
@@ -1553,10 +1598,10 @@ class StudyPanel(study: Study? = null) : JPanel(GridBagLayout()) {
     val studyProtocolVersionTextField = JTextField(30)
 
     val studyProtocolParametersLabel = createLabel(text = studyProtocolParameters, tooltip = studyProtocolParametersTooltip)
-    val studyProtocolParametersComboBox = JComboBox<String>()
+    val studyProtocolParametersField = AutoSuggestField(10)
 
-    val studyProtocolComponentsLabel = createLabel(text = studyProtocolComponents, tooltip = studyProtocolComponentsTooltip)
-    val studyProtocolComponentsComboBox = JComboBox<String>()
+    val studyProtocolComponentsTypeLabel = createLabel(text = studyProtocolComponentsType, tooltip = studyProtocolComponentsTypeTooltip)
+    val studyProtocolComponentsTypeField = AutoSuggestField(10)
 
     init {
 
@@ -1565,22 +1610,25 @@ class StudyPanel(study: Study? = null) : JPanel(GridBagLayout()) {
         studyDescriptionTextArea.isVisible = false
 
         studyDesignTypeLabel.isVisible = false
-        studyDesignTypeComboBox.isVisible = false
+        studyDesignTypeField.isVisible = false
 
-        studyAssayMeasurementsLabel.isVisible = false
-        studyAssayMeasurementsComboBox.isVisible = false
+        studyAssayMeasurementsTypeLabel.isVisible = false
+        studyAssayMeasurementsTypeField.isVisible = false
 
-        studyAssayTechnologyLabel.isVisible = false
-        studyAssayTechnologyComboBox.isVisible = false
+        studyAssayTechnologyTypeLabel.isVisible = false
+        studyAssayTechnologyTypeField.isVisible = false
+
+        studyAssayTechnologyPlatformLabel.isVisible = false
+        studyAssayTechnologyPlatformTextField.isVisible = false
 
         accreditationProcedureLabel.isVisible = false
-        accreditationProcedureComboBox.isVisible = false
+        accreditationProcedureField.isVisible = false
 
         studyProtocolNameLabel.isVisible = false
         studyProtocolNameTextField.isVisible = false
 
         studyProtocolTypeLabel.isVisible = false
-        studyProtocolTypeComboBox.isVisible = false
+        studyProtocolTypeField.isVisible = false
 
         studyProtocolDescriptionLabel.isVisible = false
         studyProtocolDescriptionTextField.isVisible = false
@@ -1592,26 +1640,36 @@ class StudyPanel(study: Study? = null) : JPanel(GridBagLayout()) {
         studyProtocolVersionTextField.isVisible = false
 
         studyProtocolParametersLabel.isVisible = false
-        studyProtocolParametersComboBox.isVisible = false
+        studyProtocolParametersField.isVisible = false
 
-        studyProtocolComponentsLabel.isVisible = false
-        studyProtocolComponentsComboBox.isVisible = false
+        studyProtocolComponentsTypeLabel.isVisible = false
+        studyProtocolComponentsTypeField.isVisible = false
+
+        // init combo boxes
+        studyDesignTypeField.setPossibleValues(vocabs["Study Design Type"])
+        studyAssayMeasurementsTypeField.setPossibleValues(vocabs["Study Assay Measurement Type"])
+        studyAssayTechnologyTypeField.setPossibleValues(vocabs["Study Assay Technology Type"])
+        accreditationProcedureField.setPossibleValues(vocabs["Accreditation procedure Ass.Tec"])
+        studyProtocolTypeField.setPossibleValues(vocabs["Study Protocol Type"])
+        studyProtocolParametersField.setPossibleValues(vocabs["Study Protocol Parameters Name"])
+        studyProtocolComponentsTypeField.setPossibleValues(vocabs["Study Protocol Components Type"])
 
         val pairList = listOf<Pair<JLabel, JComponent>>(
                 Pair(first = studyIdentifierLabel, second = studyIdentifierTextField),
                 Pair(first = studyTitleLabel, second = studyTitleTextField),
                 Pair(first = studyDescriptionLabel, second = studyDescriptionTextArea),
-                Pair(first = studyDesignTypeLabel, second = studyDesignTypeComboBox),
-                Pair(first = studyAssayMeasurementsLabel, second = studyAssayMeasurementsComboBox),
-                Pair(first = studyAssayTechnologyLabel, second = studyAssayTechnologyComboBox),
-                Pair(first = accreditationProcedureLabel, second = accreditationProcedureComboBox),
+                Pair(first = studyDesignTypeLabel, second = studyDesignTypeField),
+                Pair(first = studyAssayMeasurementsTypeLabel, second = studyAssayMeasurementsTypeField),
+                Pair(first = studyAssayTechnologyTypeLabel, second = studyAssayTechnologyTypeField),
+                Pair(first = studyAssayTechnologyPlatformLabel, second = studyAssayTechnologyPlatformTextField),
+                Pair(first = accreditationProcedureLabel, second = accreditationProcedureField),
                 Pair(first = studyProtocolNameLabel, second = studyProtocolNameTextField),
-                Pair(first = studyProtocolTypeLabel, second = studyProtocolTypeComboBox),
+                Pair(first = studyProtocolTypeLabel, second = studyProtocolTypeField),
                 Pair(first = studyProtocolDescriptionLabel, second = studyProtocolDescriptionTextField),
                 Pair(first = studyProtocolURILabel, second = studyProtocolURITextField),
                 Pair(first = studyProtocolVersionLabel, second = studyProtocolVersionTextField),
-                Pair(first = studyProtocolParametersLabel, second = studyProtocolParametersComboBox),
-                Pair(first = studyProtocolComponentsLabel, second = studyProtocolComponentsComboBox)
+                Pair(first = studyProtocolParametersLabel, second = studyProtocolParametersField),
+                Pair(first = studyProtocolComponentsTypeLabel, second = studyProtocolComponentsTypeField)
         )
 
         addGridComponents(pairs = pairList)
@@ -1625,22 +1683,25 @@ class StudyPanel(study: Study? = null) : JPanel(GridBagLayout()) {
         studyDescriptionTextArea.isVisible = newVisibilityStatus
 
         studyDesignTypeLabel.isVisible = newVisibilityStatus
-        studyDesignTypeComboBox.isVisible = newVisibilityStatus
+        studyDesignTypeField.isVisible = newVisibilityStatus
 
-        studyAssayMeasurementsLabel.isVisible = newVisibilityStatus
-        studyAssayMeasurementsComboBox.isVisible = newVisibilityStatus
+        studyAssayMeasurementsTypeLabel.isVisible = newVisibilityStatus
+        studyAssayMeasurementsTypeField.isVisible = newVisibilityStatus
 
-        studyAssayTechnologyLabel.isVisible = newVisibilityStatus
-        studyAssayTechnologyComboBox.isVisible = newVisibilityStatus
+        studyAssayTechnologyTypeLabel.isVisible = newVisibilityStatus
+        studyAssayTechnologyTypeField.isVisible = newVisibilityStatus
+
+        studyAssayTechnologyPlatformLabel.isVisible = newVisibilityStatus
+        studyAssayTechnologyPlatformTextField.isVisible = newVisibilityStatus
 
         accreditationProcedureLabel.isVisible = newVisibilityStatus
-        accreditationProcedureComboBox.isVisible = newVisibilityStatus
+        accreditationProcedureField.isVisible = newVisibilityStatus
 
         studyProtocolNameLabel.isVisible = newVisibilityStatus
         studyProtocolNameTextField.isVisible = newVisibilityStatus
 
         studyProtocolTypeLabel.isVisible = newVisibilityStatus
-        studyProtocolTypeComboBox.isVisible = newVisibilityStatus
+        studyProtocolTypeField.isVisible = newVisibilityStatus
 
         studyProtocolDescriptionLabel.isVisible = newVisibilityStatus
         studyProtocolDescriptionTextField.isVisible = newVisibilityStatus
@@ -1652,10 +1713,10 @@ class StudyPanel(study: Study? = null) : JPanel(GridBagLayout()) {
         studyProtocolVersionTextField.isVisible = newVisibilityStatus
 
         studyProtocolParametersLabel.isVisible = newVisibilityStatus
-        studyProtocolParametersComboBox.isVisible = newVisibilityStatus
+        studyProtocolParametersField.isVisible = newVisibilityStatus
 
-        studyProtocolComponentsLabel.isVisible = newVisibilityStatus
-        studyProtocolComponentsComboBox.isVisible = newVisibilityStatus
+        studyProtocolComponentsTypeLabel.isVisible = newVisibilityStatus
+        studyProtocolComponentsTypeField.isVisible = newVisibilityStatus
     }
 }
 
@@ -1731,14 +1792,14 @@ class EditStudySamplePanel(studySample: StudySample? = null, isAdvanced: Boolean
     // Fields. null if advanced mode
     val sampleNameTextField = JTextField(30)
     val sampleProtocolTextField = JTextField(30)
-    val samplingStrategyComboBox = if (isAdvanced) JComboBox<String>() else null
-    val samplingTypeComboBox = if (isAdvanced) JComboBox<String>() else null
-    val samplingMethodComboBox = if (isAdvanced) JComboBox<String>() else null
+    val samplingStrategyField = if (isAdvanced) AutoSuggestField(10) else null
+    val samplingTypeField = if (isAdvanced) AutoSuggestField(10) else null
+    val samplingMethodField = if (isAdvanced) AutoSuggestField(10) else null
     val samplingPlanTextField = JTextField(30)
     val samplingWeightTextField = JTextField(30)
     val samplingSizeTextField = JTextField(30)
-    val lotSizeUnitComboBox = if (isAdvanced) JComboBox<String>() else null
-    val samplingPointComboBox = if (isAdvanced) JComboBox<String>() else null
+    val lotSizeUnitField = if (isAdvanced) AutoSuggestField(10) else null
+    val samplingPointField = if (isAdvanced) AutoSuggestField(10) else null
 
     init {
 
@@ -1746,14 +1807,14 @@ class EditStudySamplePanel(studySample: StudySample? = null, isAdvanced: Boolean
         studySample?.let {
             sampleNameTextField.text = it.sample
             sampleProtocolTextField.text = it.collectionProtocol
-            samplingStrategyComboBox?.selectedItem = it.samplingStrategy
-            samplingTypeComboBox?.selectedItem = it.samplingProgramType
-            samplingMethodComboBox?.selectedItem = it.samplingMethod
+            samplingStrategyField?.selectedItem = it.samplingStrategy
+            samplingTypeField?.selectedItem = it.samplingProgramType
+            samplingMethodField?.selectedItem = it.samplingMethod
             samplingPlanTextField.text = it.samplingPlan
             samplingWeightTextField.text = it.samplingWeight
             samplingSizeTextField.text = it.samplingSize
-            lotSizeUnitComboBox?.selectedItem = it.lotSizeUnit
-            samplingPointComboBox?.selectedItem = it.samplingPoint
+            lotSizeUnitField?.selectedItem = it.lotSizeUnit
+            samplingPointField?.selectedItem = it.samplingPoint
         }
 
         initUI()
@@ -1761,6 +1822,7 @@ class EditStudySamplePanel(studySample: StudySample? = null, isAdvanced: Boolean
 
     private fun initUI() {
 
+        // Create labels
         val sampleNameLabel = createLabel(text = sampleName, tooltip = sampleNameTooltip)
         val sampleProtocolLabel = createLabel(text = sampleProtocol, tooltip = sampleProtocolTooltip)
         val samplingStrategyLabel = createLabel(text = samplingStrategy, tooltip = samplingStrategyTooltip)
@@ -1772,17 +1834,24 @@ class EditStudySamplePanel(studySample: StudySample? = null, isAdvanced: Boolean
         val lotSizeUnitLabel = createLabel(text = lotSizeUnit, tooltip = lotSizeUnitTooltip)
         val samplingPointLabel = createLabel(text = samplingPoint, tooltip = samplingPointTooltip)
 
+        // init combo boxes
+        samplingStrategyField?.setPossibleValues(vocabs["Sampling strategy"])
+        samplingTypeField?.setPossibleValues(vocabs["Type of sampling program"])
+        samplingMethodField?.setPossibleValues(vocabs["Sampling method"])
+        lotSizeUnitField?.setPossibleValues(vocabs["Lot size unit"])
+        samplingPointField?.setPossibleValues(vocabs["Sampling point"])
+
         val pairList = mutableListOf<Pair<JLabel, JComponent>>()
         pairList.add(Pair(first = sampleNameLabel, second = sampleNameTextField))
         pairList.add(Pair(first = sampleProtocolLabel, second = sampleProtocolTextField))
-        samplingStrategyComboBox?.let { pairList.add(Pair(first = samplingStrategyLabel, second = it)) }
-        samplingTypeComboBox?.let { pairList.add(Pair(first = samplingTypeLabel, second = it)) }
-        samplingMethodComboBox?.let { pairList.add(Pair(first = samplingMethodLabel, second = it)) }
+        samplingStrategyField?.let { pairList.add(Pair(first = samplingStrategyLabel, second = it)) }
+        samplingTypeField?.let { pairList.add(Pair(first = samplingTypeLabel, second = it)) }
+        samplingMethodField?.let { pairList.add(Pair(first = samplingMethodLabel, second = it)) }
         pairList.add(Pair(first = samplingPlanLabel, second = samplingPlanTextField))
         pairList.add(Pair(first = samplingWeightLabel, second = samplingWeightTextField))
         pairList.add(Pair(first = samplingSizeLabel, second = samplingSizeTextField))
-        lotSizeUnitComboBox?.let { pairList.add(Pair(first = lotSizeUnitLabel, second = it)) }
-        samplingPointComboBox?.let { pairList.add(Pair(first = samplingPointLabel, second = it)) }
+        lotSizeUnitField?.let { pairList.add(Pair(first = lotSizeUnitLabel, second = it)) }
+        samplingPointField?.let { pairList.add(Pair(first = samplingPointLabel, second = it)) }
 
         addGridComponents(pairs = pairList)
     }
@@ -1802,10 +1871,11 @@ class EditStudySamplePanel(studySample: StudySample? = null, isAdvanced: Boolean
         val studySample = StudySample(sample = sampleName, collectionProtocol = collectionProtocol,
                 samplingPlan = samplingPlan, samplingWeight = samplingWeight, samplingSize = samplingSize)
 
-        studySample.samplingStrategy = samplingStrategyComboBox?.selectedItem as String?
-        studySample.samplingMethod = samplingMethodComboBox?.selectedItem as String?
-        studySample.lotSizeUnit = lotSizeUnitComboBox?.selectedItem as String?
-        studySample.samplingPoint = samplingPointComboBox?.selectedItem as String?
+        studySample.samplingStrategy = samplingStrategyField?.selectedItem as String?
+        studySample.samplingProgramType = samplingTypeField?.selectedItem as String?
+        studySample.samplingMethod = samplingMethodField?.selectedItem as String?
+        studySample.lotSizeUnit = lotSizeUnitField?.selectedItem as String?
+        studySample.samplingPoint = samplingPointField?.selectedItem as String?
 
         return studySample
     }
@@ -1845,29 +1915,31 @@ class EditDietaryAssessmentMethodPanel(dietaryAssessmentMethod: DietaryAssessmen
     }
 
     // fields. null if advanced
-    val dataCollectionToolComboBox = JComboBox<String>()
+    val dataCollectionToolField = AutoSuggestField(10)
     val nonConsecutiveOneDayTextField = JTextField(30)
     val dietarySoftwareToolTextField = if (isAdvanced) JTextField(30) else null
     val foodItemNumberTextField = if (isAdvanced) JTextField(30) else null
     val recordTypeTextField = if (isAdvanced) JTextField(30) else null
-    val foodDescriptorTextField = if (isAdvanced) JTextField(30) else null
+    val foodDescriptorComboBox = if (isAdvanced) JComboBox<String>() else null
 
     init {
 
         // Populate interface with passed `dietaryAssessmentMethod`
         dietaryAssessmentMethod?.let {
-            dataCollectionToolComboBox.selectedItem = it.collectionTool
+            dataCollectionToolField.selectedItem = it.collectionTool
             nonConsecutiveOneDayTextField.text = it.numberOfNonConsecutiveOneDay.toString()
             dietarySoftwareToolTextField?.text = it.softwareTool
             foodItemNumberTextField?.text = it.numberOfFoodItems[0]
             recordTypeTextField?.text = it.recordTypes[0]
-            foodDescriptorTextField?.text = it.foodDescriptors[0]
+            foodDescriptorComboBox?.selectedItem = it.foodDescriptors[0]
         }
 
         initUI()
     }
 
     private fun initUI() {
+
+        // Create labels
         val dataCollectionToolLabel = createLabel(text = dataCollectionTool, tooltip = dataCollectionToolTooltip)
         val nonConsecutiveOneDayLabel = createLabel(text = nonConsecutiveOneDays, tooltip = nonConsecutiveOneDayTooltip)
         val dietarySoftwareToolLabel = createLabel(text = dietarySoftwareTool, tooltip = dietarySoftwareTooltip)
@@ -1875,13 +1947,17 @@ class EditDietaryAssessmentMethodPanel(dietaryAssessmentMethod: DietaryAssessmen
         val recordTypeLabel = createLabel(text = recordType, tooltip = recordTypeTooltip)
         val foodDescriptionLabel = createLabel(text = foodDescription, tooltip = foodDescriptionTooltip)
 
+        // init combo boxes
+        dataCollectionToolField.setPossibleValues(vocabs["Method. tool to collect data"])
+        foodDescriptorComboBox?.let { vocabs["Food descriptors"]?.forEach(it::addItem) }
+
         val pairList = mutableListOf<Pair<JLabel, JComponent>>()
-        pairList.add(Pair(first = dataCollectionToolLabel, second = dataCollectionToolComboBox))
+        pairList.add(Pair(first = dataCollectionToolLabel, second = dataCollectionToolField))
         pairList.add(Pair(first = nonConsecutiveOneDayLabel, second = nonConsecutiveOneDayTextField))
         dietarySoftwareToolTextField?.let { pairList.add(Pair(first = dietarySoftwareToolLabel, second = it)) }
         foodItemNumberTextField?.let { pairList.add(Pair(first = foodItemNumberLabel, second = it)) }
         recordTypeTextField?.let { pairList.add(Pair(first = recordTypeLabel, second = it)) }
-        foodDescriptorTextField?.let { pairList.add(Pair(first = foodDescriptionLabel, second = it)) }
+        foodDescriptorComboBox?.let { pairList.add(Pair(first = foodDescriptionLabel, second = it)) }
 
         addGridComponents(pairs = pairList)
     }
@@ -1889,14 +1965,14 @@ class EditDietaryAssessmentMethodPanel(dietaryAssessmentMethod: DietaryAssessmen
     fun toDietaryAssessmentMethod(): DietaryAssessmentMethod {
 
         // TODO: cast temporarily null values to empty string and 0 (SHOULD be validated)
-        val dataCollectionTool = dataCollectionToolComboBox.selectedItem as? String ?: ""
+        val dataCollectionTool = dataCollectionToolField.selectedItem as? String ?: ""
         val nonConsecutiveOneDays = nonConsecutiveOneDayTextField.text?.toIntOrNull() ?: 0
 
         val method = DietaryAssessmentMethod(collectionTool = dataCollectionTool, numberOfNonConsecutiveOneDay = nonConsecutiveOneDays)
         method.softwareTool = dietarySoftwareToolTextField?.text
         foodItemNumberTextField?.text?.let { method.numberOfFoodItems.add(it) }
         recordTypeTextField?.text?.let { method.recordTypes.add(it) }
-        foodDescriptorTextField?.text?.let { method.foodDescriptors.add(it) }
+        method.foodDescriptors.addAll(foodDescriptorComboBox?.selectedObjects as Array<String>)
 
         return method
     }
@@ -2078,7 +2154,7 @@ class EditParameterPanel(parameter: Parameter? = null, isAdvanced: Boolean) : JP
 
     // TODO: classificationComboBox is a ComboBox and in the GUI appears a Text entry instead
     val classificationLabel = createLabel(text = classification, tooltip = classificationTooltip)
-    val classificationComboBox = JComboBox<String>()
+    val classificationField = AutoSuggestField(10)
 
     val nameLabel = createLabel(text = parameterName, tooltip = parameterNameTooltip)
     val nameTextField = JTextField(30)
@@ -2087,25 +2163,25 @@ class EditParameterPanel(parameter: Parameter? = null, isAdvanced: Boolean) : JP
     val descriptionTextArea = JTextArea(5, 30)
 
     val typeLabel = createLabel(text = type, tooltip = typeTooltip)
-    val typeComboBox = JComboBox<String>()
+    val typeField = AutoSuggestField(10)
 
     val unitLabel = createLabel(text = unit, tooltip = unitTooltip)
-    val unitComboBox = JComboBox<String>()
+    val unitField = AutoSuggestField(10)
 
     val unitCategoryLabel = createLabel(text = unitCategory, tooltip = unitCategoryTooltip)
-    val unitCategoryComboBox = JComboBox<String>()
+    val unitCategoryField = AutoSuggestField(10)
 
     val dataTypeLabel = createLabel(text = dataType, tooltip = dataTypeTooltip)
-    val dataTypeComboBox = JComboBox<String>()
+    val dataTypeField = AutoSuggestField(10)
 
     val sourceLabel = createLabel(text = source, tooltip = sourceTooltip)
-    val sourceComboBox = JComboBox<String>()
+    val sourceField = AutoSuggestField(10)
 
     val subjectLabel = createLabel(text = subject, tooltip = subjectTooltip)
-    val subjectComboBox = JComboBox<String>()
+    val subjectField = AutoSuggestField(10)
 
     val distributionLabel = createLabel(text = distribution, tooltip = distributionTooltip)
-    val distributionComboBox = JComboBox<String>()
+    val distributionField = AutoSuggestField(10)
 
     val valueLabel = createLabel(text = value, tooltip = valueTooltip)
     val valueTextField = JTextField(30)
@@ -2124,18 +2200,28 @@ class EditParameterPanel(parameter: Parameter? = null, isAdvanced: Boolean) : JP
 
     init {
 
+        // init combo boxes
+        classificationField.setPossibleValues(vocabs["Parameter classification"])
+        typeField.setPossibleValues(vocabs["Parameter type"])
+        unitField.setPossibleValues(vocabs["Parameter unit"])
+        unitCategoryField.setPossibleValues(vocabs["Parameter unit category"])
+        dataTypeField.setPossibleValues(vocabs["Parameter data type"])
+        sourceField.setPossibleValues(vocabs["Parameter source"])
+        subjectField.setPossibleValues(vocabs["Parameter subject"])
+        distributionField.setPossibleValues(vocabs["Parameter distribution"])
+
         val pairList = listOf<Pair<JLabel, JComponent>>(
                 Pair(first = idLabel, second = idTextField),
-                Pair(first = classificationLabel, second = classificationComboBox),
+                Pair(first = classificationLabel, second = classificationField),
                 Pair(first = nameLabel, second = nameTextField),
                 Pair(first = descriptionLabel, second = descriptionTextArea),
-                Pair(first = typeLabel, second = typeComboBox),
-                Pair(first = unitLabel, second = unitComboBox),
-                Pair(first = unitCategoryLabel, second = unitCategoryComboBox),
-                Pair(first = dataTypeLabel, second = dataTypeComboBox),
-                Pair(first = sourceLabel, second = sourceComboBox),
-                Pair(first = subjectLabel, second = subjectComboBox),
-                Pair(first = distributionLabel, second = distributionComboBox),
+                Pair(first = typeLabel, second = typeField),
+                Pair(first = unitLabel, second = unitField),
+                Pair(first = unitCategoryLabel, second = unitCategoryField),
+                Pair(first = dataTypeLabel, second = dataTypeField),
+                Pair(first = sourceLabel, second = sourceField),
+                Pair(first = subjectLabel, second = subjectField),
+                Pair(first = distributionLabel, second = distributionField),
                 Pair(first = valueLabel, second = valueTextField),
                 Pair(first = referenceLabel, second = referenceTextField),
                 Pair(first = variabilitySubjectLabel, second = variabilitySubjectTextArea),

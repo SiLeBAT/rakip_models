@@ -72,16 +72,16 @@ data class Product(
         var environmentName: String,
         var environmentDescription: String? = null,
         var environmentUnit: String,
-        val methodOfProduction: MutableList<String> = mutableListOf(),
+        val productionMethod: MutableList<String> = mutableListOf(),
         val packaging: MutableList<String> = mutableListOf(),
-        // TODO: product treatment
-        var countryOfOrigin: String? = null,
+        val productTreatment: MutableList<String> = mutableListOf(),
+        var originCountry: String? = null,
         var areaOfOrigin: String? = null,
         var fisheriesArea: String? = null,
         var productionDate: Date? = null,
         var expirationDate: Date? = null,
-        var moisturePercentage: Double? = null,
-        var fatPercentage: Double? = null
+        var moisturePercentage: Double? = null,  // TODO: move moisturePercentage to StudySample
+        var fatPercentage: Double? = null  // TODO: move fatPercentage to StudySample
 )
 
 data class Hazard(
