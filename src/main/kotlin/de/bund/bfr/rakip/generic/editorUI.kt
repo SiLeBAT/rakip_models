@@ -949,17 +949,16 @@ class EditProductPanel(product: Product? = null, isAdvanced: Boolean) : JPanel(G
         addGridComponents(pairs = pairList)
     }
 
-    // TODO: toProduct
     fun toProduct(): Product {
 
         val envName = envNameField.selectedItem as? String ?: ""
         val envUnit = envUnitField.selectedItem as? String ?: ""
 
         val product = Product(environmentName = envName, environmentUnit = envUnit)
-        envDescriptionTextArea?.text?.let { product.environmentDescription = it }
+        product.environmentDescription = envDescriptionTextArea?.text
         packagingComboBox?.selectedObjects?.forEach { product.packaging.add(it as String) }
-//        productTreatmentComboBox?.  // TODO: product treatment
-//        productTreatmentComboBox?.selectedObjects?.forEach { product.}
+        productionMethodComboBox?.selectedObjects?.forEach {  product.productTreatment.add(it as String) }
+
         product.originCountry = originCountryField?.selectedItem as String?
         product.areaOfOrigin = originAreaField?.selectedItem as String?
         product.fisheriesArea = fisheriesAreaField?.selectedItem as String?
