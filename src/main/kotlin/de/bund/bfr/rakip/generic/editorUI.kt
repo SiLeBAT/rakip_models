@@ -331,22 +331,16 @@ class GeneralInformationPanel(generalInformation: GeneralInformation) : Box(BoxL
         val descriptionLabel = createLabel(text = description, tooltip = descriptionTooltip)
 
         // hide initially advanced comps
-        urlLabel.isVisible = false
-        urlTextField.isVisible = false
-        formatLabel.isVisible = false
-        formatField.isVisible = false
-        languageLabel.isVisible = false
-        languageTextField.isVisible = false
-        softwareLabel.isVisible = false
-        softwareField.isVisible = false
-        languageWrittenInLabel.isVisible = false
-        languageWrittenInField.isVisible = false
-        statusLabel.isVisible = false
-        statusField.isVisible = false
-        objectiveLabel.isVisible = false
-        objectiveTextField.isVisible = false
-        descriptionLabel.isVisible = false
-        descriptionTextField.isVisible = false
+        val advancedComps = listOf<JComponent>(
+                urlLabel, urlTextField,
+                formatLabel, formatField,
+                languageLabel, languageTextField,
+                softwareLabel, softwareField,
+                languageWrittenInLabel, languageWrittenInField,
+                statusLabel, statusField,
+                objectiveLabel, objectiveTextField,
+                descriptionLabel, descriptionTextField)
+        advancedComps.forEach { it.isVisible = false }
 
         val propertiesPanel = JPanel(GridBagLayout())
 
@@ -396,31 +390,7 @@ class GeneralInformationPanel(generalInformation: GeneralInformation) : Box(BoxL
 
         advancedCheckBox.addItemListener { _ ->
             val showAdvanced = advancedCheckBox.isSelected
-
-            urlLabel.isVisible = showAdvanced
-            urlTextField.isVisible = showAdvanced
-
-            formatLabel.isVisible = showAdvanced
-            formatField.isVisible = showAdvanced
-
-            languageLabel.isVisible = showAdvanced
-            languageTextField.isVisible = showAdvanced
-
-            softwareLabel.isVisible = showAdvanced
-            softwareField.isVisible = showAdvanced
-
-            languageWrittenInLabel.isVisible = showAdvanced
-            languageWrittenInField.isVisible = showAdvanced
-
-            statusLabel.isVisible = showAdvanced
-            statusField.isVisible = showAdvanced
-
-            objectiveLabel.isVisible = showAdvanced
-            objectiveTextField.isVisible = showAdvanced
-
-            descriptionLabel.isVisible = showAdvanced
-            descriptionTextField.isVisible = showAdvanced
-
+            advancedComps.forEach { it.isVisible = showAdvanced }
             referencePanel.isAdvanced = showAdvanced
         }
 
