@@ -181,7 +181,7 @@ fun main(args: Array<String>) {
     frame.addWindowListener(object : java.awt.event.WindowAdapter() {
         // Save changes on close
         override fun windowClosing(windowEvent: WindowEvent?) {
-            val gi = generalInformationPanel.toGeneralInformation()
+            gi = generalInformationPanel.toGeneralInformation()
             System.exit(0)
         }
     })
@@ -289,10 +289,33 @@ class GeneralInformationPanel(generalInformation: GeneralInformation) : Box(BoxL
     val descriptionTextField = JTextField(30)
 
     init {
-        initUI(generalInformation)
+
+        // init combo boxes
+        rightsField.setPossibleValues(vocabs["Rigthts"])
+        formatField.setPossibleValues(vocabs["Format"])
+        softwareField.setPossibleValues(vocabs["Software"])
+        languageWrittenInField.setPossibleValues(vocabs["Language written in"])
+        statusField.setPossibleValues(vocabs["Status"])
+
+        // initialize interface with `generalInformation`
+        studyNameTextField.text = generalInformation.name
+        identifierTextField.text = generalInformation.identifier
+        creationDateChooser.date = generalInformation.creationDate
+        rightsField.selectedItem = generalInformation.rights
+        availabilityCheckBox.isSelected = generalInformation.isAvailable
+        urlTextField.text = generalInformation.url.toString()
+        formatField.selectedItem = generalInformation.format
+        languageTextField.text = generalInformation.language
+        softwareField.selectedItem = generalInformation.software
+        languageWrittenInField.selectedItem = generalInformation.languageWrittenIn
+        statusField.selectedItem = generalInformation.status
+        objectiveTextField.text = generalInformation.objective
+        descriptionTextField.text = generalInformation.description
+
+        initUI()
     }
 
-    private fun initUI(gi: GeneralInformation) {
+    private fun initUI() {
 
         val studyNameLabel = createLabel(text = studyName, tooltip = studyNameTooltip)
         val identifierLabel = createLabel(text = identifier, tooltip = identifierTooltip)
