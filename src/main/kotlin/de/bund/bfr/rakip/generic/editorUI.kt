@@ -867,9 +867,6 @@ class EditProductPanel(product: Product? = null, isAdvanced: Boolean) : JPanel(G
         val expirationDate = "Expiration date"
         val expirationDateTooltip = "date of expiry of food/product"
 
-        val moisturePercentage = "Moisture percentage"
-        val moisturePercentageTooltip = "Percentage of moisture in the original sample"
-
         val fatPercentage = "Fat percentage"
         val fatPercentageTooltip = "Percentage of fat in the original sample"
     }
@@ -886,7 +883,7 @@ class EditProductPanel(product: Product? = null, isAdvanced: Boolean) : JPanel(G
     private val fisheriesAreaField = if (isAdvanced) AutoSuggestField(10) else null
     private val productionDateChooser = if (isAdvanced) FixedJDateChooser() else null
     private val expirationDateChooser = if (isAdvanced) FixedJDateChooser() else null
-    private val moisturePercentageSpinnerModel = if (isAdvanced) createSpinnerPercentageModel() else null
+
     private val fatPercentageSpinnerModel = if (isAdvanced) createSpinnerPercentageModel() else null
 
     init {
@@ -909,7 +906,7 @@ class EditProductPanel(product: Product? = null, isAdvanced: Boolean) : JPanel(G
             fisheriesAreaField?.selectedItem = it.fisheriesArea
             productionDateChooser?.date = it.productionDate
             expirationDateChooser?.date = it.expirationDate
-            if (it.moisturePercentage != null) moisturePercentageSpinnerModel?.value = it.moisturePercentage
+
             if (it.fatPercentage != null) fatPercentageSpinnerModel?.value = it.fatPercentage
         }
         initUI()
@@ -929,7 +926,6 @@ class EditProductPanel(product: Product? = null, isAdvanced: Boolean) : JPanel(G
         val fisheriesAreaLabel = createLabel(text = fisheriesArea, tooltip = fisheriesAreaTooltip)
         val productionDateLabel = createLabel(text = productionDate, tooltip = productionDateTooltip)
         val expirationDateLabel = createLabel(text = expirationDate, tooltip = expirationDateTooltip)
-        val moisturePercentageLabel = createLabel(text = moisturePercentage, tooltip = moisturePercentageTooltip)
         val fatPercentageLabel = createLabel(text = fatPercentage, tooltip = fatPercentageTooltip)
 
         // Init combo boxes
@@ -954,10 +950,7 @@ class EditProductPanel(product: Product? = null, isAdvanced: Boolean) : JPanel(G
         fisheriesAreaField?.let { pairList.add(Pair(first = fisheriesAreaLabel, second = it)) }
         productionDateChooser?.let { pairList.add(Pair(first = productionDateLabel, second = it)) }
         expirationDateChooser?.let { pairList.add(Pair(first = expirationDateLabel, second = it)) }
-        moisturePercentageSpinnerModel?.let {
-            val spinner = createSpinner(it)
-            pairList.add(Pair(first = moisturePercentageLabel, second = spinner))
-        }
+
         fatPercentageSpinnerModel?.let {
             val spinner = createSpinner(it)
             pairList.add(Pair(first = fatPercentageLabel, second = spinner))
@@ -982,7 +975,6 @@ class EditProductPanel(product: Product? = null, isAdvanced: Boolean) : JPanel(G
         product.fisheriesArea = fisheriesAreaField?.selectedItem as String?
         product.productionDate = productionDateChooser?.date
         product.expirationDate = expirationDateChooser?.date
-        product.moisturePercentage = moisturePercentageSpinnerModel?.number?.toDouble()
         product.fatPercentage = fatPercentageSpinnerModel?.number?.toDouble()
 
         return product
@@ -1726,6 +1718,9 @@ class EditStudySamplePanel(studySample: StudySample? = null, isAdvanced: Boolean
         val sampleName = "Sample name (ID)"
         val sampleNameTooltip = "An unambiguous ID given to the samples used in the assay"
 
+        val moisturePercentage = "Moisture percentage"
+        val moisturePercentageTooltip = "Percentage of moisture in the original sample"
+
         val sampleProtocol = "Protocol of sample"
         val sampleProtocolTooltip = """
             |<html>
@@ -1791,6 +1786,7 @@ class EditStudySamplePanel(studySample: StudySample? = null, isAdvanced: Boolean
 
     // Fields. null if advanced mode
     val sampleNameTextField = JTextField(30)
+    val moisturePercentageSpinnerModel = if (isAdvanced) createSpinnerPercentageModel() else null
     val sampleProtocolTextField = JTextField(30)
     val samplingStrategyField = if (isAdvanced) AutoSuggestField(10) else null
     val samplingTypeField = if (isAdvanced) AutoSuggestField(10) else null
@@ -1815,6 +1811,7 @@ class EditStudySamplePanel(studySample: StudySample? = null, isAdvanced: Boolean
             samplingSizeTextField.text = it.samplingSize
             lotSizeUnitField?.selectedItem = it.lotSizeUnit
             samplingPointField?.selectedItem = it.samplingPoint
+            if (it.moisturePercentage != null) moisturePercentageSpinnerModel?.value = it.moisturePercentage
         }
 
         initUI()
@@ -1824,6 +1821,7 @@ class EditStudySamplePanel(studySample: StudySample? = null, isAdvanced: Boolean
 
         // Create labels
         val sampleNameLabel = createLabel(text = sampleName, tooltip = sampleNameTooltip)
+        val moisturePercentageLabel = createLabel(text = moisturePercentage, tooltip = moisturePercentageTooltip)
         val sampleProtocolLabel = createLabel(text = sampleProtocol, tooltip = sampleProtocolTooltip)
         val samplingStrategyLabel = createLabel(text = samplingStrategy, tooltip = samplingStrategyTooltip)
         val samplingTypeLabel = createLabel(text = samplingType, tooltip = samplingStrategyTooltip)
@@ -1843,6 +1841,7 @@ class EditStudySamplePanel(studySample: StudySample? = null, isAdvanced: Boolean
 
         val pairList = mutableListOf<Pair<JLabel, JComponent>>()
         pairList.add(Pair(first = sampleNameLabel, second = sampleNameTextField))
+        moisturePercentageSpinnerModel?.let { pairList.add(Pair(first = moisturePercentageLabel, second = createSpinner(it))) }
         pairList.add(Pair(first = sampleProtocolLabel, second = sampleProtocolTextField))
         samplingStrategyField?.let { pairList.add(Pair(first = samplingStrategyLabel, second = it)) }
         samplingTypeField?.let { pairList.add(Pair(first = samplingTypeLabel, second = it)) }
@@ -1871,6 +1870,7 @@ class EditStudySamplePanel(studySample: StudySample? = null, isAdvanced: Boolean
         val studySample = StudySample(sample = sampleName, collectionProtocol = collectionProtocol,
                 samplingPlan = samplingPlan, samplingWeight = samplingWeight, samplingSize = samplingSize)
 
+        studySample.moisturePercentage = moisturePercentageSpinnerModel?.number?.toDouble()
         studySample.samplingStrategy = samplingStrategyField?.selectedItem as String?
         studySample.samplingProgramType = samplingTypeField?.selectedItem as String?
         studySample.samplingMethod = samplingMethodField?.selectedItem as String?
