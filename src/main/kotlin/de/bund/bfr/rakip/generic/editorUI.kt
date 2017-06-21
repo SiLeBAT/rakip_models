@@ -138,7 +138,7 @@ fun main(args: Array<String>) {
         return gi
     }
 
-    val gi = createExampleGeneralInformation()
+    var gi = createExampleGeneralInformation()
 
     val frame = JFrame()
     val generalInformationPanel = GeneralInformationPanel(gi)
@@ -181,21 +181,7 @@ fun main(args: Array<String>) {
     frame.addWindowListener(object : java.awt.event.WindowAdapter() {
         // Save changes on close
         override fun windowClosing(windowEvent: WindowEvent?) {
-            gi.name = generalInformationPanel.studyNameTextField.text
-            gi.identifier = generalInformationPanel.identifierTextField.text
-            if (generalInformationPanel.creationDateChooser.date != null) {
-                gi.creationDate = generalInformationPanel.creationDateChooser.date
-            }
-            gi.rights = generalInformationPanel.rightsField.selectedItem as String
-            gi.isAvailable = generalInformationPanel.availabilityCheckBox.isSelected
-            gi.url = URL(generalInformationPanel.urlTextField.text)
-            gi.format = generalInformationPanel.formatField.selectedItem as String
-            gi.software = generalInformationPanel.softwareField.selectedItem as String?
-            gi.languageWrittenIn = generalInformationPanel.languageWrittenInField.selectedItem as String?
-            gi.status = generalInformationPanel.statusField.selectedItem as String?
-            gi.objective = generalInformationPanel.objectiveTextField.text
-            gi.description = generalInformationPanel.descriptionTextField.text
-
+            val gi = generalInformationPanel.toGeneralInformation()
             System.exit(0)
         }
     })
@@ -284,13 +270,17 @@ class GeneralInformationPanel(generalInformation: GeneralInformation) : Box(BoxL
         val descriptionTooltip = "General assayDescription of the study, data or model"
     }
 
+    val advancedCheckBox = JCheckBox("Advanced")
+
     val studyNameTextField = JTextField(30)
     val identifierTextField = JTextField(30)
+    val creatorPanel = CreatorPanel(generalInformation.creators)
     val creationDateChooser = FixedJDateChooser()
     val rightsField = AutoSuggestField(10)
     val availabilityCheckBox = JCheckBox()
     val urlTextField = JTextField(30)
     val formatField = AutoSuggestField(10)
+    val referencePanel = ReferencePanel(refs = generalInformation.reference, isAdvanced = advancedCheckBox.isSelected)
     val languageTextField = JTextField(30)
     val softwareField = AutoSuggestField(10)
     val languageWrittenInField = AutoSuggestField(10)
@@ -303,8 +293,6 @@ class GeneralInformationPanel(generalInformation: GeneralInformation) : Box(BoxL
     }
 
     private fun initUI(gi: GeneralInformation) {
-
-        val advancedCheckBox = JCheckBox("Advanced")
 
         val studyNameLabel = createLabel(text = studyName, tooltip = studyNameTooltip)
         val identifierLabel = createLabel(text = identifier, tooltip = identifierTooltip)
@@ -345,7 +333,6 @@ class GeneralInformationPanel(generalInformation: GeneralInformation) : Box(BoxL
         propertiesPanel.add(comp = identifierLabel, gridy = 2, gridx = 0)
         propertiesPanel.add(comp = identifierTextField, gridy = 2, gridx = 1, gridwidth = 2)
 
-        val creatorPanel = CreatorPanel(gi.creators)
         propertiesPanel.add(comp = creatorPanel, gridy = 3, gridx = 0, gridwidth = 3)
 
         propertiesPanel.add(comp = creationDateLabel, gridy = 4, gridx = 0)
@@ -364,7 +351,6 @@ class GeneralInformationPanel(generalInformation: GeneralInformation) : Box(BoxL
         propertiesPanel.add(comp = formatLabel, gridy = 8, gridx = 0)
         propertiesPanel.add(comp = formatField, gridy = 8, gridx = 1, gridwidth = 2)
 
-        val referencePanel = ReferencePanel(refs = gi.reference, isAdvanced = advancedCheckBox.isSelected)
         propertiesPanel.add(comp = referencePanel, gridy = 9, gridx = 0, gridwidth = 3)
 
         propertiesPanel.add(comp = languageLabel, gridy = 10, gridx = 0)
@@ -418,6 +404,32 @@ class GeneralInformationPanel(generalInformation: GeneralInformation) : Box(BoxL
         add(createAdvancedPanel(checkbox = advancedCheckBox))
         add(Box.createGlue())
         add(propertiesPanel)
+    }
+
+    fun toGeneralInformation(): GeneralInformation {
+
+        // Get mandatory fields first  // TODO: cast them temporarily to empty strings (SHOULD BE VALIDATED)
+        val studyName = studyNameTextField.text ?: ""
+        val identifier = identifierTextField.text ?: ""
+        val creationDateChooser = creationDateChooser.date ?: Date()
+        val rights = rightsField.selectedItem as? String ?: ""
+        val isAvailable = availabilityCheckBox.isSelected
+        val url = URL(urlTextField.text ?: "")
+
+        val gi = GeneralInformation(name = studyName, identifier = identifier, creationDate = creationDateChooser,
+                rights = rights, isAvailable = isAvailable, url = url)
+
+        gi.creators.addAll(elements = creatorPanel.creators)
+        gi.format = formatField.selectedItem as? String ?: ""
+        gi.reference.addAll(referencePanel.refs)
+        gi.language = languageTextField.text
+        gi.software = softwareField.selectedItem as? String ?: ""
+        gi.languageWrittenIn = languageWrittenInField.selectedItem as? String ?: ""
+        gi.status = statusField.selectedItem as? String ?: ""
+        gi.objective = objectiveTextField.text
+        gi.description = descriptionTextField.text
+
+        return gi
     }
 }
 
@@ -957,7 +969,7 @@ class EditProductPanel(product: Product? = null, isAdvanced: Boolean) : JPanel(G
         val product = Product(environmentName = envName, environmentUnit = envUnit)
         product.environmentDescription = envDescriptionTextArea?.text
         packagingComboBox?.selectedObjects?.forEach { product.packaging.add(it as String) }
-        productionMethodComboBox?.selectedObjects?.forEach {  product.productTreatment.add(it as String) }
+        productionMethodComboBox?.selectedObjects?.forEach { product.productTreatment.add(it as String) }
 
         product.originCountry = originCountryField?.selectedItem as String?
         product.areaOfOrigin = originAreaField?.selectedItem as String?
