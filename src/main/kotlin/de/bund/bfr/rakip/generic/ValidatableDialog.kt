@@ -30,7 +30,7 @@ class ValidatableDialog(panel: ValidatablePanel) : JDialog(null as Frame?, true)
                     } else {
                         val msg = errors.joinToString(separator = "\n")
                         JOptionPane.showMessageDialog(this, msg, "Missing fields",
-                                JOptionPane.WARNING_MESSAGE)
+                                JOptionPane.ERROR_MESSAGE)
 
                         // Reset the JOptionPane's value. If you don't this, the if the user presses
                         // the same button next time, no property change will be fired.
