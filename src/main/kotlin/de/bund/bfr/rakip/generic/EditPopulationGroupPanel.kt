@@ -9,7 +9,7 @@ class EditPopulationGroupPanel(populationGroup: PopulationGroup? = null, isAdvan
     : ValidatablePanel() {
 
     companion object {
-        val populationName = "Population name"
+        val populationName = "Population name *"
         val populationNameTooltip = "Name of the population for which the model or data applies"
 
         val targetPopulation = "Target population"

@@ -11,7 +11,7 @@ class EditReferencePanel(ref: Record? = null, isAdvanced: Boolean) : Validatable
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd")
 
     // fields. null if advanced
-    private val isReferenceDescriptionCheckBox = JCheckBox("Is reference description")
+    private val isReferenceDescriptionCheckBox = JCheckBox("Is reference description *")
     private val typeComboBox = if (isAdvanced) JComboBox<Type>() else null
     private val dateChooser = if (isAdvanced) FixedJDateChooser() else null
     private val pmidTextField = if (isAdvanced) JTextField(30) else null
@@ -31,9 +31,9 @@ class EditReferencePanel(ref: Record? = null, isAdvanced: Boolean) : Validatable
         val publicationType = "Publication type"
         val publicationDate = "Publication date"
         val pubMedId = "PubMed ID"
-        val publicationDoi = "Publication DOI"
+        val publicationDoi = "Publication DOI *"
         val publicationAuthorList = "Publication author list"
-        val publicationTitle = "Publication title"
+        val publicationTitle = "Publication title *"
         val publicationAbstract = "Publication abstract"
         val publicationJournal = "Publication journal"
         val publicationVolume = "Publication volume"

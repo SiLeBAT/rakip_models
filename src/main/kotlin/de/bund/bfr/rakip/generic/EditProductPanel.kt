@@ -9,7 +9,7 @@ import javax.swing.JTextArea
 class EditProductPanel(product: Product? = null, isAdvanced: Boolean) : ValidatablePanel() {
 
     companion object {
-        val envName = "Environment name"
+        val envName = "Environment name *"
         val envNameTooltip = """
             |<html>
             |<p>The environment (animal, food product, matrix, etc.) for which the model
@@ -28,7 +28,7 @@ class EditProductPanel(product: Product? = null, isAdvanced: Boolean) : Validata
         val productionMethod = "Method of production"
         val productionMethodTooltip = "Type of production for the product/ matrix"
 
-        val envUnit = "Environment unit"
+        val envUnit = "Environment unit *"
         val envUnitTooltip = "Units of the environment for which the model or data applies"
 
         val packaging = "Packaging"

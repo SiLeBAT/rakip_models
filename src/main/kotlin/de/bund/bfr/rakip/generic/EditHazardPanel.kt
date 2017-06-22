@@ -9,16 +9,16 @@ import javax.swing.JTextField
 class EditHazardPanel(hazard: Hazard? = null, isAdvanced: Boolean) : ValidatablePanel() {
 
     companion object {
-        val hazardType = "Hazard type"
+        val hazardType = "Hazard type *"
         val hazardTypeTooltip = "General classification of the hazard"
 
-        val hazardName = "Hazard name"
+        val hazardName = "Hazard name *"
         val hazardNameTooltip = "Name of the hazard for which the model or data applies"
 
         val hazardDescription = "Hazard description"
         val hazardDescriptionTooltip = "Description of te hazard for which the model or data applies"
 
-        val hazardUnit = "Hazard unit"
+        val hazardUnit = "Hazard unit *"
         val hazardUnitTooltip = "Unit of the hazard for which the model or data applies"
 
         val adverseEffect = "Adverse effect"
