@@ -1,14 +1,14 @@
+package de.bund.bfr.rakip.generic
+
 import com.gmail.gcolaianni5.jris.bean.Record
 import com.toedter.calendar.JDateChooser
 import de.bund.bfr.knime.ui.AutoSuggestField
-import de.bund.bfr.rakip.generic.*
 import ezvcard.VCard
 import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.awt.*
 import java.awt.event.WindowEvent
 import java.net.URL
-import java.text.SimpleDateFormat
 import java.util.*
 import java.util.logging.Logger
 import javax.swing.*
@@ -453,8 +453,11 @@ class ReferencePanel(val refs: MutableList<Record>, var isAdvanced: Boolean) : J
         val buttonsPanel = ButtonsPanel()
         buttonsPanel.addButton.addActionListener { _ ->
             val editPanel = EditReferencePanel(isAdvanced = isAdvanced)
-            val result = showConfirmDialog(panel = editPanel, title = "Create reference")
-            if (result == JOptionPane.OK_OPTION) {
+
+            val dlg = ValidatableDialog(panel = editPanel)
+            dlg.title = "Create reference"
+            dlg.isVisible = true
+            if (dlg.getValue() == JOptionPane.OK_OPTION) {
                 dtm.addRow(arrayOf(editPanel.toRecord()))
             }
         }
@@ -465,8 +468,11 @@ class ReferencePanel(val refs: MutableList<Record>, var isAdvanced: Boolean) : J
                 val ref = dtm.getValueAt(rowToEdit, 0) as Record
 
                 val editPanel = EditReferencePanel(ref, isAdvanced = isAdvanced)
-                val result = showConfirmDialog(panel = editPanel, title = "Modify reference")
-                if (result == JOptionPane.OK_OPTION) {
+
+                val dlg = ValidatableDialog(panel = editPanel)
+                dlg.title = "Modify reference"
+                dlg.isVisible = true
+                if (dlg.getValue() == JOptionPane.OK_OPTION) {
                     dtm.setValueAt(editPanel.toRecord(), rowToEdit, 0)
                 }
             }
@@ -495,123 +501,9 @@ class FixedJDateChooser : JDateChooser() {
     }
 }
 
+abstract class ValidatablePanel : JPanel(GridBagLayout()) {
 
-class EditReferencePanel(ref: Record? = null, isAdvanced: Boolean) : JPanel(GridBagLayout()) {
-
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd")
-
-    // fields. null if advanced
-    private val isReferenceDescriptionCheckBox = JCheckBox("Is reference assayDescription")
-    private val typeComboBox = if (isAdvanced) JComboBox<com.gmail.gcolaianni5.jris.bean.Type>() else null
-    private val dateChooser = if (isAdvanced) FixedJDateChooser() else null
-    private val pmidTextField = if (isAdvanced) JTextField(30) else null
-    private val doiTextField = JTextField(30)
-    private val authorListTextField = if (isAdvanced) JTextField(30) else null
-    private val titleTextField = JTextField(30)
-    private val abstractTextArea = if (isAdvanced) JTextArea(5, 30) else null
-    private val journalTextField = if (isAdvanced) JTextField(30) else null
-    private val volumeSpinnerModel = if (isAdvanced) createSpinnerIntegerModel() else null
-    private val issueSpinnerModel = if (isAdvanced) createSpinnerIntegerModel() else null
-    private val pageTextField = if (isAdvanced) JTextField(30) else null
-    private val statusTextField = if (isAdvanced) JTextField(30) else null
-    private val websiteTextField = if (isAdvanced) JTextField(30) else null
-    private val commentTextField = if (isAdvanced) JTextArea(5, 30) else null
-
-    companion object {
-        val publicationType = "Publication type"
-        val publicationDate = "Publication date"
-        val pubMedId = "PubMed ID"
-        val publicationDoi = "Publication DOI"
-        val publicationAuthorList = "Publication author list"
-        val publicationTitle = "Publication title"
-        val publicationAbstract = "Publication abstract"
-        val publicationJournal = "Publication journal"
-        val publicationVolume = "Publication volume"
-        val publicationIssue = "Publication issue"
-        val publicationPage = "Publication page"
-        val publicationStatus = "Publication status"
-        val publicationWebsite = "Publication website"
-        val comment = "Comment"
-    }
-
-    init {
-        // Add types to typeComboBox and set the selected type
-        typeComboBox?.let {
-            com.gmail.gcolaianni5.jris.bean.Type.values().forEach { value -> it.addItem(value) }
-            it.selectedItem = ref?.type
-        }
-
-        initUI()
-
-        // Populate interface if ref is provided
-        ref?.let {
-            it.date?.let { dateChooser?.date = dateFormat.parse(it) }
-            doiTextField.text = it.doi
-            authorListTextField?.text = it.authors?.joinToString(";")
-            titleTextField.text = it.title
-            abstractTextArea?.text = it.abstr
-            journalTextField?.text = it.secondaryTitle
-            if (it.volumeNumber != null) volumeSpinnerModel?.value = it.volumeNumber
-            if (it.issueNumber != null) issueSpinnerModel?.value = it.issueNumber
-            websiteTextField?.text = it.websiteLink
-        }
-    }
-
-    private fun initUI() {
-
-        val pairList = mutableListOf<Pair<JLabel, JComponent>>()
-        typeComboBox?.let { pairList.add(Pair(first = JLabel(publicationType), second = it)) }
-        dateChooser?.let { pairList.add(Pair(first = JLabel(publicationDate), second = it)) }
-        pmidTextField?.let { pairList.add(Pair(first = JLabel(pubMedId), second = it)) }
-        pairList.add(Pair(first = JLabel(publicationDoi), second = doiTextField))
-        authorListTextField?.let { pairList.add(Pair(first = JLabel(publicationAuthorList), second = it)) }
-        pairList.add(Pair(first = JLabel(publicationTitle), second = titleTextField))
-        abstractTextArea?.let { pairList.add(Pair(first = JLabel(publicationAbstract), second = it)) }
-        journalTextField?.let { pairList.add(Pair(first = JLabel(publicationJournal), second = it)) }
-        volumeSpinnerModel?.let {
-            val spinner = createSpinner(it)
-            pairList.add(Pair(first = JLabel(publicationVolume), second = spinner))
-        }
-        issueSpinnerModel?.let {
-            val spinner = createSpinner(it)
-            pairList.add(Pair(first = JLabel(publicationIssue), second = spinner))
-        }
-        pageTextField?.let { pairList.add(Pair(first = JLabel(publicationPage), second = it)) }
-        statusTextField?.let { pairList.add(Pair(first = JLabel(publicationStatus), second = it)) }
-        websiteTextField?.let { pairList.add(Pair(first = JLabel(publicationWebsite), second = it)) }
-        commentTextField?.let { pairList.add(Pair(first = JLabel(comment), second = it)) }
-
-        add(comp = isReferenceDescriptionCheckBox, gridy = 0, gridx = 0)
-        for ((index, pair) in pairList.withIndex()) {
-            val label = pair.first
-            val field = pair.second
-            label.labelFor = field
-            add(comp = label, gridy = index + 1, gridx = 0)
-            add(comp = field, gridy = index + 1, gridx = 1)
-        }
-    }
-
-    fun toRecord(): Record {
-        val risRecord = Record()
-        // TODO: can't do anything with ReferencePanel.isReferenceDescriptionCheckBox yet
-        risRecord.type = typeComboBox?.selectedItem as com.gmail.gcolaianni5.jris.bean.Type
-        risRecord.date = dateChooser?.date?.toString()
-        // TODO: can't do anything with PubMedId yet
-        risRecord.doi = doiTextField.text
-        if (!authorListTextField?.text.isNullOrEmpty()) {
-            authorListTextField?.text?.split(";")?.forEach { risRecord.addAuthor(it) }
-        }
-        risRecord.title = titleTextField.text
-        risRecord.abstr = abstractTextArea?.text
-        risRecord.secondaryTitle = journalTextField?.text
-        risRecord.volumeNumber = volumeSpinnerModel?.number?.toString()
-        risRecord.issueNumber = issueSpinnerModel?.number?.toInt()
-        // TODO: can't do anything with status yet
-        risRecord.websiteLink = websiteTextField?.text
-        // TODO: can't do anything with comment yet
-
-        return risRecord
-    }
+    abstract fun validatePanel() : List<String>
 }
 
 class CreatorPanel(val creators: MutableList<VCard>) : JPanel(BorderLayout()) {
@@ -2417,7 +2309,7 @@ private fun createAdvancedPanel(checkbox: JCheckBox): JPanel {
 }
 
 /** Creates a JSpinner with 5 columns. */
-private fun createSpinner(spinnerModel: AbstractSpinnerModel): JSpinner {
+fun createSpinner(spinnerModel: AbstractSpinnerModel): JSpinner {
     val spinner = JSpinner(spinnerModel)
     (spinner.editor as JSpinner.DefaultEditor).textField.columns = 5
 
@@ -2425,7 +2317,7 @@ private fun createSpinner(spinnerModel: AbstractSpinnerModel): JSpinner {
 }
 
 /** Creates a SpinnerNumberModel for integers with no limits and initial value 0. */
-private fun createSpinnerIntegerModel() = SpinnerNumberModel(0, null, null, 1)
+fun createSpinnerIntegerModel() = SpinnerNumberModel(0, null, null, 1)
 
 /** Creates a SpinnerNumberModel for real numbers with no limits and initial value 0.0. */
 private fun createSpinnerDoubleModel() = SpinnerNumberModel(0.0, null, null, .01)
@@ -2435,7 +2327,7 @@ private fun createSpinnerDoubleModel() = SpinnerNumberModel(0.0, null, null, .01
  *
  * Has limits 0.0 and 1.0.
  * */
-private fun createSpinnerPercentageModel() = SpinnerNumberModel(0.0, 0.0, 1.0, .01)
+fun createSpinnerPercentageModel() = SpinnerNumberModel(0.0, 0.0, 1.0, .01)
 
 private class NonEditableTableModel : DefaultTableModel(arrayOf(), arrayOf("header")) {
     override fun isCellEditable(row: Int, column: Int) = false
