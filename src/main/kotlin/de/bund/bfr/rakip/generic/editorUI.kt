@@ -1068,191 +1068,6 @@ class ModelMathPanel(modelMath: ModelMath? = null) : Box(BoxLayout.PAGE_AXIS) {
     }
 }
 
-// TODO: idTextField <- Create UUID automatically
-class EditParameterPanel(parameter: Parameter? = null, isAdvanced: Boolean) : JPanel(GridBagLayout()) {
-
-    companion object {
-
-        val id = "Parameter ID"
-        val idTooltip = "An unambiguous and sequential ID given to the parameter"
-
-        val classification = "Parameter classification"
-        val classificationTooltip = "General classification of the parameter (e.g. Input, Constant, Output...)"
-
-        val parameterName = "Parameter name"
-        val parameterNameTooltip = "A name given to the parameter"
-
-        val description = "Parameter classification"
-        val descriptionTooltip = "General description of the parameter"
-
-        val type = "Parameter type"
-        val typeTooltip = "The type of the parameter"
-
-        val unit = "Parameter unit"
-        val unitTooltip = "Unit of the parameter"
-
-        val unitCategory = "Parameter unit category"
-        val unitCategoryTooltip = "General classification of the parameter unit"
-
-        val dataType = "Parameter data type"
-        val dataTypeTooltip = """
-            |<html>
-            |<p>Information on the data format of the parameter, e.g. if it is a
-            |<p>categorical variable, int, double, array of size x,y,z
-            |</html>
-            """.trimMargin()
-
-        val source = "Parameter source"
-        val sourceTooltip = "Information on the type of knowledge used to define the parameter value"
-
-        val subject = "Parameter subject"
-        val subjectTooltip = """
-            |<html>
-            |<p>Scope of the parameter, e.g. if it refers to an animal, a batch of
-            |<p>animals, a batch of products, a carcass, a carcass skin etc
-            |</html>
-            """.trimMargin()
-
-        val distribution = "Parameter distribution"
-        val distributionTooltip = """
-            |<html>
-            |<p>Information on the expected distribution of parameter values in of
-            |<p>uncertainty and variability - if available. SUGGESTION: Information on
-            |<p>the distribution describing the parameter (e.g variability, uncertainty,
-            |<p>point estimate...)
-            |</html>
-            """.trimMargin()
-
-        val value = "Parameter value"
-        val valueTooltip = "Numerical value of the parameter"
-
-        val reference = "Parameter reference"
-        val referenceTooltip = """
-            |<html>
-            |<p>Information on the source, where the value of the parameter has been
-            |<p>extracted from - if available. The format should use that used in other
-            |<p>"Reference" metadata"
-            |</html>
-            """.trimMargin()
-
-        val variabilitySubject = """
-            |<html>
-            |<p>Parameter variability
-            |<p>subject
-            |</html>
-            """.trimMargin()
-        val variabilitySubjectTooltip = """
-            |<html>
-            |<p>Information "per what" the variability is described. It can be
-            |<p>variability between broiler in a flock,  variability between all meat
-            |<p>packages sold in Denmark, variability between days, etc.
-            |</html>
-            """.trimMargin()
-
-        val applicability = """
-            |<html>
-            |<p>Range of applicability
-            |<p>of the model
-            |</html>
-            """.trimMargin()
-
-        val applicabilityTooltip = """
-            |<html>
-            |<p>Numerical values of the maximum and minimum limits of the parameter that
-            |<p>determine the range of applicability for which the model applies
-            |</html>
-            """.trimMargin()
-
-        val error = "Parameter error"
-        val errorTooltip = "Error of the parameter value"
-    }
-
-    val idLabel = createLabel(text = id, tooltip = idTooltip)
-    val idTextField = JTextField(30)
-
-    // TODO: classificationComboBox is a ComboBox and in the GUI appears a Text entry instead
-    val classificationLabel = createLabel(text = classification, tooltip = classificationTooltip)
-    val classificationField = AutoSuggestField(10)
-
-    val nameLabel = createLabel(text = parameterName, tooltip = parameterNameTooltip)
-    val nameTextField = JTextField(30)
-
-    val descriptionLabel = createLabel(text = description, tooltip = descriptionTooltip)
-    val descriptionTextArea = JTextArea(5, 30)
-
-    val typeLabel = createLabel(text = type, tooltip = typeTooltip)
-    val typeField = AutoSuggestField(10)
-
-    val unitLabel = createLabel(text = unit, tooltip = unitTooltip)
-    val unitField = AutoSuggestField(10)
-
-    val unitCategoryLabel = createLabel(text = unitCategory, tooltip = unitCategoryTooltip)
-    val unitCategoryField = AutoSuggestField(10)
-
-    val dataTypeLabel = createLabel(text = dataType, tooltip = dataTypeTooltip)
-    val dataTypeField = AutoSuggestField(10)
-
-    val sourceLabel = createLabel(text = source, tooltip = sourceTooltip)
-    val sourceField = AutoSuggestField(10)
-
-    val subjectLabel = createLabel(text = subject, tooltip = subjectTooltip)
-    val subjectField = AutoSuggestField(10)
-
-    val distributionLabel = createLabel(text = distribution, tooltip = distributionTooltip)
-    val distributionField = AutoSuggestField(10)
-
-    val valueLabel = createLabel(text = value, tooltip = valueTooltip)
-    val valueTextField = JTextField(30)
-
-    val referenceLabel = createLabel(text = reference, tooltip = referenceTooltip)
-    val referenceTextField = JTextField(30)
-
-    val variabilitySubjectLabel = createLabel(text = variabilitySubject, tooltip = variabilitySubjectTooltip)
-    val variabilitySubjectTextArea = JTextArea(5, 30)
-
-    val applicabilityLabel = createLabel(text = applicability, tooltip = applicabilityTooltip)
-    val applicabilityTextArea = JTextArea(5, 30)
-
-    val errorLabel = createLabel(text = error, tooltip = errorTooltip)
-    val errorSpinnerModel = createSpinnerDoubleModel()
-
-    init {
-
-        // init combo boxes
-        classificationField.setPossibleValues(vocabs["Parameter classification"])
-        typeField.setPossibleValues(vocabs["Parameter type"])
-        unitField.setPossibleValues(vocabs["Parameter unit"])
-        unitCategoryField.setPossibleValues(vocabs["Parameter unit category"])
-        dataTypeField.setPossibleValues(vocabs["Parameter data type"])
-        sourceField.setPossibleValues(vocabs["Parameter source"])
-        subjectField.setPossibleValues(vocabs["Parameter subject"])
-        distributionField.setPossibleValues(vocabs["Parameter distribution"])
-
-        val pairList = listOf<Pair<JLabel, JComponent>>(
-                Pair(first = idLabel, second = idTextField),
-                Pair(first = classificationLabel, second = classificationField),
-                Pair(first = nameLabel, second = nameTextField),
-                Pair(first = descriptionLabel, second = descriptionTextArea),
-                Pair(first = typeLabel, second = typeField),
-                Pair(first = unitLabel, second = unitField),
-                Pair(first = unitCategoryLabel, second = unitCategoryField),
-                Pair(first = dataTypeLabel, second = dataTypeField),
-                Pair(first = sourceLabel, second = sourceField),
-                Pair(first = subjectLabel, second = subjectField),
-                Pair(first = distributionLabel, second = distributionField),
-                Pair(first = valueLabel, second = valueTextField),
-                Pair(first = referenceLabel, second = referenceTextField),
-                Pair(first = variabilitySubjectLabel, second = variabilitySubjectTextArea),
-                Pair(first = applicabilityLabel, second = applicabilityTextArea),
-                Pair(first = errorLabel, second = createSpinner(errorSpinnerModel))
-        )
-
-        addGridComponents(pairs = pairList)
-    }
-
-    // TODO: toParameter
-}
-
 class ParameterPanel(val parameters: MutableList<Parameter> = mutableListOf(), isAdvanced: Boolean) : JPanel(BorderLayout()) {
 
     init {
@@ -1272,8 +1087,11 @@ class ParameterPanel(val parameters: MutableList<Parameter> = mutableListOf(), i
         val buttonsPanel = ButtonsPanel()
         buttonsPanel.addButton.addActionListener { _ ->
             val editPanel = EditParameterPanel(isAdvanced = isAdvanced)
-            val result = showConfirmDialog(panel = editPanel, title = "Create parameter")
-            if (result == JOptionPane.OK_OPTION) {
+
+            val dlg = ValidatableDialog(panel = editPanel)
+            dlg.title = "Create parameter"
+            dlg.isVisible = true
+            if (dlg.getValue() == JOptionPane.OK_OPTION) {
                 // FIXME: Uncomment once EditParameterPanel.toParameter is implemented
 //                dtm.addRow(arrayOf(editParameterPanel.toParameter()))
             }
@@ -1437,7 +1255,7 @@ fun createSpinner(spinnerModel: AbstractSpinnerModel): JSpinner {
 fun createSpinnerIntegerModel() = SpinnerNumberModel(0, null, null, 1)
 
 /** Creates a SpinnerNumberModel for real numbers with no limits and initial value 0.0. */
-private fun createSpinnerDoubleModel() = SpinnerNumberModel(0.0, null, null, .01)
+internal fun createSpinnerDoubleModel() = SpinnerNumberModel(0.0, null, null, .01)
 
 /**
  * Creates a SpinnerNumberModel for percentages (doubles) and initial value 0.0.
