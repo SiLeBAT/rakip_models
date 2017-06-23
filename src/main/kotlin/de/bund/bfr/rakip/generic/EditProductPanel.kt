@@ -174,8 +174,8 @@ class EditProductPanel(product: Product? = null, isAdvanced: Boolean) : Validata
 
     override fun validatePanel(): List<String> {
         val errors = mutableListOf<String>()
-        if (envNameField.selectedIndex == -1) errors.add("Missing ${envName}")
-        if (envUnitField.selectedIndex == -1) errors.add("Missing ${envUnit}")
+        if (!envNameField.hasValidValue()) errors.add("Missing ${envName}")
+        if (!envUnitField.hasValidValue()) errors.add("Missing ${envUnit}")
 
         return errors
     }

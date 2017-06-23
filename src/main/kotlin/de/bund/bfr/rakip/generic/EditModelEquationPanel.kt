@@ -46,8 +46,8 @@ class EditModelEquationPanel(equation: ModelEquation? = null, isAdvanced: Boolea
 
     override fun validatePanel(): List<String> {
         val errors = mutableListOf<String>()
-        if (equationNameTextField.text.isBlank()) errors.add("Missing ${equationName}")
-        if (scriptTextArea.text.isBlank()) errors.add("Missing " + script)
+        if (!equationNameTextField.hasValidValue()) errors.add("Missing ${equationName}")
+        if (!scriptTextArea.hasValidValue()) errors.add("Missing " + script)
 
         return errors
     }

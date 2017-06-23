@@ -7,7 +7,7 @@ import javax.swing.JLabel
 import javax.swing.JTextField
 
 
-class EditDietaryAssessmentMethodPanel(dietaryAssessmentMethod: DietaryAssessmentMethod? = null, isAdvanced: Boolean)
+class  EditDietaryAssessmentMethodPanel(dietaryAssessmentMethod: DietaryAssessmentMethod? = null, isAdvanced: Boolean)
     : ValidatablePanel() {
 
     companion object {
@@ -104,8 +104,8 @@ class EditDietaryAssessmentMethodPanel(dietaryAssessmentMethod: DietaryAssessmen
 
     override fun validatePanel(): List<String> {
         val errors = mutableListOf<String>()
-        if (dataCollectionToolField.selectedIndex == -1) errors.add("Missing ${dataCollectionTool}")
-        if (nonConsecutiveOneDayTextField.text.isBlank()) errors.add("Missing ${nonConsecutiveOneDays}")
+        if (!dataCollectionToolField.hasValidValue()) errors.add("Missing ${dataCollectionTool}")
+        if (!nonConsecutiveOneDayTextField.hasValidValue()) errors.add("Missing ${nonConsecutiveOneDays}")
 
         return errors
     }

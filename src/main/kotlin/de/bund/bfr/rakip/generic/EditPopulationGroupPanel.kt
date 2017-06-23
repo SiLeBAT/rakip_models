@@ -178,7 +178,7 @@ class EditPopulationGroupPanel(populationGroup: PopulationGroup? = null, isAdvan
 
     override fun validatePanel(): List<String> {
         val errors = mutableListOf<String>()
-        if (populationNameTextField.text.isBlank()) errors.add("Missing ${populationName}")
+        if (!populationNameTextField.hasValidValue()) errors.add("Missing ${populationName}")
         return errors
     }
 }

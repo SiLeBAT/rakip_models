@@ -188,6 +188,14 @@ class EditParameterPanel(parameter: Parameter? = null, isAdvanced: Boolean) : Va
     // TODO: toParameter
 
     override fun validatePanel(): List<String> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val errors = mutableListOf<String>()
+        if (!idTextField.hasValidValue()) errors.add("Missing $id")
+        if (!classificationField.hasValidValue()) errors.add("Missing $classification")
+        if (!nameTextField.hasValidValue()) errors.add("Missing $name")
+        if (!unitField.hasValidValue()) errors.add("Missing $unit")
+        if (!unitCategoryField.hasValidValue()) errors.add("Missing $unitCategory")
+        if (!dataTypeField.hasValidValue()) errors.add("Missing $dataType")
+
+        return errors
     }
 }

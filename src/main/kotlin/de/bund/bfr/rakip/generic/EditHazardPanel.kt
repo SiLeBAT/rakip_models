@@ -258,9 +258,9 @@ class EditHazardPanel(hazard: Hazard? = null, isAdvanced: Boolean) : Validatable
 
     override fun validatePanel(): List<String> {
         val errors = mutableListOf<String>()
-        if (hazardTypeField.selectedIndex == -1) errors.add("Missing ${hazardType}")
-        if (hazardNameField.selectedIndex == -1) errors.add("Missing ${hazardName}")
-        if (hazardUnitField.selectedIndex == -1) errors.add("Missing ${hazardUnit}")
+        if (!hazardTypeField.hasValidValue()) errors.add("Missing ${hazardType}")
+        if (!hazardNameField.hasValidValue()) errors.add("Missing ${hazardName}")
+        if (!hazardUnitField.hasValidValue()) errors.add("Missing ${hazardUnit}")
 
         return errors
     }

@@ -184,11 +184,11 @@ class EditStudySamplePanel(studySample: StudySample? = null, isAdvanced: Boolean
     override fun validatePanel(): List<String> {
 
         val errors = mutableListOf<String>()
-        if (sampleNameTextField.text.isBlank()) errors.add("Missing ${sampleName}")
-        if (sampleProtocolTextField.text.isBlank()) errors.add("Missing ${sampleProtocol}")
-        if (samplingPlanTextField.text.isBlank()) errors.add("Missing ${samplingPlan}")
-        if (samplingWeightTextField.text.isBlank()) errors.add("Missing ${samplingWeight}")
-        if (samplingSizeTextField.text.isBlank()) errors.add("Missing ${samplingSize}")
+        if (!sampleNameTextField.hasValidValue()) errors.add("Missing ${sampleName}")
+        if (!sampleProtocolTextField.hasValidValue()) errors.add("Missing ${sampleProtocol}")
+        if (!samplingPlanTextField.hasValidValue()) errors.add("Missing ${samplingPlan}")
+        if (!samplingWeightTextField.hasValidValue()) errors.add("Missing ${samplingWeight}")
+        if (!samplingSizeTextField.hasValidValue()) errors.add("Missing ${samplingSize}")
 
         return errors
     }

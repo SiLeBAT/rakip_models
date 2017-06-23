@@ -44,7 +44,7 @@ class EditAssayPanel(assay: Assay? = null, isAdvanced: Boolean) : ValidatablePan
 
     override fun validatePanel(): List<String> {
         val errors = mutableListOf<String>()
-        if (nameTextField.text.isBlank()) errors.add("Missing ${assayName}")
+        if (!nameTextField.hasValidValue()) errors.add("Missing ${assayName}")
         return errors
     }
 }

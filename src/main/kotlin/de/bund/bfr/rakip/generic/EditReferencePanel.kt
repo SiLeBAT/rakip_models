@@ -125,8 +125,8 @@ class EditReferencePanel(ref: Record? = null, isAdvanced: Boolean) : Validatable
 
     override fun validatePanel(): List<String> {
         val errorList = mutableListOf<String>()
-        if (doiTextField.text.isBlank()) errorList.add("Missing DOI")
-        if (titleTextField.text.isBlank()) errorList.add("Missing title")
+        if (!doiTextField.hasValidValue()) errorList.add("Missing DOI")
+        if (!titleTextField.hasValidValue()) errorList.add("Missing title")
 
         return errorList
     }
