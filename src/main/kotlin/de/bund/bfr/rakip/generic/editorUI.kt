@@ -1159,8 +1159,11 @@ class ModelEquationsPanel(
         val buttonsPanel = ButtonsPanel()
         buttonsPanel.addButton.addActionListener { _ ->
             val editPanel = EditModelEquationPanel(isAdvanced = isAdvanced)
-            val result = showConfirmDialog(panel = editPanel, title = "Create equation")
-            if (result == JOptionPane.OK_OPTION) {
+
+            val dlg = ValidatableDialog(panel = editPanel)
+            dlg.title = "Create equation"
+            dlg.isVisible = true
+            if (dlg.getValue() == JOptionPane.OK_OPTION) {
                 // TODO: process result
             }
         }
@@ -1171,8 +1174,12 @@ class ModelEquationsPanel(
                 val equation = dtm.getValueAt(rowToEdit, 0) as ModelEquation
 
                 val editPanel = EditModelEquationPanel(equation = equation, isAdvanced = isAdvanced)
-                val result = showConfirmDialog(panel = editPanel, title = "Modify equation")
-                if (result == JOptionPane.OK_OPTION) {
+
+                val dlg  = ValidatableDialog(panel = editPanel)
+                dlg.title = "Modify equation"
+                dlg.isVisible = true
+
+                if (dlg.getValue() == JOptionPane.OK_OPTION) {
                     // TODO: process result
                 }
             }
@@ -1188,45 +1195,7 @@ class ModelEquationsPanel(
     }
 }
 
-class EditModelEquationPanel(equation: ModelEquation? = null, isAdvanced: Boolean) : JPanel(GridBagLayout()) {
 
-    companion object {
-
-        val equationName = "Model equation name"
-        val equationNameTooltip = "A name given to the model equation"
-
-        val equationClass = "Model equation class"
-        val equationClassTooltip = "Information on that helps to categorize model equations"
-
-        val script = "Equation"
-        val scriptToolTip = "The pointer to the file that holds the software code (e.g. R-script)"
-    }
-
-    val equationNameLabel = createLabel(text = equationName, tooltip = equationNameTooltip)
-    val equationNameTextField = JTextField(30)
-
-    val equationClassLabel = createLabel(text = equationClass, tooltip = equationClassTooltip)
-    val equationClassTextField = JTextField(30)
-
-    val scriptLabel = createLabel(text = script, tooltip = scriptToolTip)
-    val scriptTextArea = JTextArea(5, 30)
-
-    init {
-
-        val referencePanel = ReferencePanel(refs = equation?.equationReference ?: mutableListOf(), isAdvanced = isAdvanced)
-
-        add(comp = equationNameLabel, gridy = 0, gridx = 0)
-        add(comp = equationNameTextField, gridy = 0, gridx = 1)
-
-        add(comp = equationClassLabel, gridy = 1, gridx = 0)
-        add(comp = equationClassTextField, gridy = 1, gridx = 1)
-
-        add(comp = referencePanel, gridy = 2, gridx = 0, gridwidth = 2)
-
-        add(comp = scriptLabel, gridy = 3, gridx = 0)
-        add(comp = scriptTextArea, gridy = 3, gridx = 1, gridwidth = 2)
-    }
-}
 
 internal fun createLabel(text: String, tooltip: String): JLabel {
     val label = JLabel(text)
