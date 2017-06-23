@@ -21,7 +21,9 @@ val logger: Logger = Logger.getAnonymousLogger()
 
 fun loadVocabularies(): Map<String, Set<String>> {
 
-    val workbook = XSSFWorkbook("resources/FSKLab_Config_Controlled Vocabularies.xlsx")
+    val inputStream = "".javaClass.getResourceAsStream("/FSKLab_Config_Controlled Vocabularies.xlsx")
+
+    val workbook = XSSFWorkbook(inputStream)
     val vocabs = listOf(
 
             // GeneralInformation controlled vocabularies
