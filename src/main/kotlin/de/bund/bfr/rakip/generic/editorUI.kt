@@ -6,14 +6,16 @@ import de.bund.bfr.knime.ui.AutoSuggestField
 import ezvcard.VCard
 import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
-import java.awt.*
+import java.awt.BorderLayout
+import java.awt.Dimension
+import java.awt.GridBagConstraints
+import java.awt.GridBagLayout
 import java.awt.event.WindowEvent
 import java.net.URL
 import java.util.*
 import java.util.logging.Logger
 import javax.swing.*
 import javax.swing.table.DefaultTableCellRenderer
-import javax.swing.table.DefaultTableModel
 
 val logger: Logger = Logger.getAnonymousLogger()
 
@@ -792,7 +794,7 @@ class DataBackgroundPanel(var dataBackground: DataBackground? = null) : Box(BoxL
 
         // `Advanced` checkbox
         advancedCheckBox.addItemListener { _ ->
-            studyPanel.toggleAdvancedMode()
+            studyPanel.advancedComps.forEach { it.isVisible = advancedCheckBox.isSelected }
             println("dummy listener")  // TODO: implement listener
         }
 
@@ -901,47 +903,25 @@ class StudyPanel(study: Study? = null) : JPanel(GridBagLayout()) {
     val studyProtocolComponentsTypeLabel = createLabel(text = studyProtocolComponentsType, tooltip = studyProtocolComponentsTypeTooltip)
     val studyProtocolComponentsTypeField = AutoSuggestField(10)
 
+    val advancedComps = listOf<JComponent>(
+            studyDescriptionLabel, studyDescriptionTextArea,
+            studyDesignTypeLabel, studyDesignTypeField,
+            studyAssayMeasurementsTypeLabel, studyAssayMeasurementsTypeField,
+            studyAssayTechnologyTypeLabel, studyAssayTechnologyTypeField,
+            studyAssayTechnologyPlatformLabel, studyAssayTechnologyPlatformTextField,
+            accreditationProcedureLabel, accreditationProcedureField,
+            studyProtocolNameLabel, studyProtocolNameTextField,
+            studyProtocolTypeLabel, studyProtocolTypeField,
+            studyProtocolDescriptionLabel, studyProtocolDescriptionTextField,
+            studyProtocolURILabel, studyProtocolURITextField,
+            studyProtocolVersionLabel, studyProtocolVersionTextField,
+            studyProtocolParametersLabel, studyProtocolParametersField,
+            studyProtocolComponentsTypeLabel, studyProtocolComponentsTypeField
+    )
+
     init {
 
-        // hide advanced elements initially
-        studyDescriptionLabel.isVisible = false
-        studyDescriptionTextArea.isVisible = false
-
-        studyDesignTypeLabel.isVisible = false
-        studyDesignTypeField.isVisible = false
-
-        studyAssayMeasurementsTypeLabel.isVisible = false
-        studyAssayMeasurementsTypeField.isVisible = false
-
-        studyAssayTechnologyTypeLabel.isVisible = false
-        studyAssayTechnologyTypeField.isVisible = false
-
-        studyAssayTechnologyPlatformLabel.isVisible = false
-        studyAssayTechnologyPlatformTextField.isVisible = false
-
-        accreditationProcedureLabel.isVisible = false
-        accreditationProcedureField.isVisible = false
-
-        studyProtocolNameLabel.isVisible = false
-        studyProtocolNameTextField.isVisible = false
-
-        studyProtocolTypeLabel.isVisible = false
-        studyProtocolTypeField.isVisible = false
-
-        studyProtocolDescriptionLabel.isVisible = false
-        studyProtocolDescriptionTextField.isVisible = false
-
-        studyProtocolURILabel.isVisible = false
-        studyProtocolURITextField.isVisible = false
-
-        studyProtocolVersionLabel.isVisible = false
-        studyProtocolVersionTextField.isVisible = false
-
-        studyProtocolParametersLabel.isVisible = false
-        studyProtocolParametersField.isVisible = false
-
-        studyProtocolComponentsTypeLabel.isVisible = false
-        studyProtocolComponentsTypeField.isVisible = false
+        advancedComps.forEach { it.isVisible = false }
 
         // init combo boxes
         studyDesignTypeField.setPossibleValues(vocabs["Study Design Type"])
@@ -971,50 +951,6 @@ class StudyPanel(study: Study? = null) : JPanel(GridBagLayout()) {
         )
 
         addGridComponents(pairs = pairList)
-    }
-
-    fun toggleAdvancedMode() {
-
-        val newVisibilityStatus = !studyDescriptionTextArea.isVisible
-
-        studyDescriptionLabel.isVisible = newVisibilityStatus
-        studyDescriptionTextArea.isVisible = newVisibilityStatus
-
-        studyDesignTypeLabel.isVisible = newVisibilityStatus
-        studyDesignTypeField.isVisible = newVisibilityStatus
-
-        studyAssayMeasurementsTypeLabel.isVisible = newVisibilityStatus
-        studyAssayMeasurementsTypeField.isVisible = newVisibilityStatus
-
-        studyAssayTechnologyTypeLabel.isVisible = newVisibilityStatus
-        studyAssayTechnologyTypeField.isVisible = newVisibilityStatus
-
-        studyAssayTechnologyPlatformLabel.isVisible = newVisibilityStatus
-        studyAssayTechnologyPlatformTextField.isVisible = newVisibilityStatus
-
-        accreditationProcedureLabel.isVisible = newVisibilityStatus
-        accreditationProcedureField.isVisible = newVisibilityStatus
-
-        studyProtocolNameLabel.isVisible = newVisibilityStatus
-        studyProtocolNameTextField.isVisible = newVisibilityStatus
-
-        studyProtocolTypeLabel.isVisible = newVisibilityStatus
-        studyProtocolTypeField.isVisible = newVisibilityStatus
-
-        studyProtocolDescriptionLabel.isVisible = newVisibilityStatus
-        studyProtocolDescriptionTextField.isVisible = newVisibilityStatus
-
-        studyProtocolURILabel.isVisible = newVisibilityStatus
-        studyProtocolURITextField.isVisible = newVisibilityStatus
-
-        studyProtocolVersionLabel.isVisible = newVisibilityStatus
-        studyProtocolVersionTextField.isVisible = newVisibilityStatus
-
-        studyProtocolParametersLabel.isVisible = newVisibilityStatus
-        studyProtocolParametersField.isVisible = newVisibilityStatus
-
-        studyProtocolComponentsTypeLabel.isVisible = newVisibilityStatus
-        studyProtocolComponentsTypeField.isVisible = newVisibilityStatus
     }
 }
 
