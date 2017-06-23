@@ -97,7 +97,7 @@ class EditDietaryAssessmentMethodPanel(dietaryAssessmentMethod: DietaryAssessmen
         method.softwareTool = dietarySoftwareToolTextField?.text
         foodItemNumberTextField?.text?.let { method.numberOfFoodItems.add(it) }
         recordTypeTextField?.text?.let { method.recordTypes.add(it) }
-        method.foodDescriptors.addAll(foodDescriptorComboBox?.selectedObjects as Array<String>)
+        foodDescriptorComboBox?.selectedObjects?.filterNotNull()?.forEach { method.foodDescriptors.add(it as String) }
 
         return method
     }
