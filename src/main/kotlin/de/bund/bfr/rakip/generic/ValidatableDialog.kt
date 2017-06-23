@@ -46,6 +46,7 @@ class ValidatableDialog(panel: ValidatablePanel, dialogTitle: String) : JDialog(
 
         contentPane = optionPane
         pack()
+        isVisible = true
     }
 
     fun getValue(): Any = optionPane.value
