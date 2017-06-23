@@ -503,7 +503,7 @@ class FixedJDateChooser : JDateChooser() {
 
 abstract class ValidatablePanel : JPanel(GridBagLayout()) {
 
-    abstract fun validatePanel() : List<String>
+    abstract fun validatePanel(): List<String>
 }
 
 class CreatorPanel(val creators: MutableList<VCard>) : JPanel(BorderLayout()) {
@@ -761,8 +761,11 @@ class DataBackgroundPanel(var dataBackground: DataBackground? = null) : Box(BoxL
         dietaryAssessmentMethodButton.addActionListener { _ ->
             val editPanel = EditDietaryAssessmentMethodPanel(
                     dietaryAssessmentMethod = dataBackground?.dietaryAssessmentMethod, isAdvanced = advancedCheckBox.isSelected)
-            val result = showConfirmDialog(panel = editPanel, title = "Create dietary assessment method")
-            if (result == JOptionPane.OK_OPTION) {
+
+            val dlg = ValidatableDialog(panel = editPanel)
+            dlg.title = "Create dietary assessment method"
+            dlg.isVisible = true
+            if (dlg.getValue() == JOptionPane.OK_OPTION) {
                 val dietaryAssessmentMethod = editPanel.toDietaryAssessmentMethod()
 
                 if (dataBackground == null) dataBackground = DataBackground(dietaryAssessmentMethod = dietaryAssessmentMethod)
@@ -776,13 +779,15 @@ class DataBackgroundPanel(var dataBackground: DataBackground? = null) : Box(BoxL
         assayButton.toolTipText = "Click me to add Assay"
         assayButton.addActionListener { _ ->
             val editPanel = EditAssayPanel(assay = dataBackground?.assay, isAdvanced = advancedCheckBox.isSelected)
-            val result = showConfirmDialog(panel = editPanel, title = "Create assay")
-            if (result == JOptionPane.OK_OPTION) {
+
+            val dlg = ValidatableDialog(panel = editPanel)
+            dlg.title = "Create assay"
+            dlg.isVisible = true
+            if (dlg.getValue() == JOptionPane.OK_OPTION) {
                 val assay = editPanel.toAssay()
 
                 if (dataBackground == null) dataBackground = DataBackground(assay = assay)
                 else dataBackground?.assay = assay
-
             }
         }
 
@@ -1027,141 +1032,6 @@ class StudyPanel(study: Study? = null) : JPanel(GridBagLayout()) {
         studyProtocolComponentsTypeLabel.isVisible = newVisibilityStatus
         studyProtocolComponentsTypeField.isVisible = newVisibilityStatus
     }
-}
-
-class EditDietaryAssessmentMethodPanel(dietaryAssessmentMethod: DietaryAssessmentMethod? = null, isAdvanced: Boolean)
-    : JPanel(GridBagLayout()) {
-
-    companion object {
-        val dataCollectionTool = "Methodological tool to collect data"
-        val dataCollectionToolTooltip = """
-            |<html>
-            |<p>food diaries, interview, 24-hour recall interview, food propensy
-            |<p>questionnaire, portion size measurement aids, eating outside
-            |<p>questionnaire
-            """.trimMargin()
-
-        val nonConsecutiveOneDays = "Number of non-conseccutive one-day"
-        val nonConsecutiveOneDayTooltip = ""
-
-        val dietarySoftwareTool = "Dietary software tool"
-        val dietarySoftwareTooltip = ""
-
-        val foodItemNumber = "Number of food items"
-        val foodItemNumberTooltip = ""
-
-        val recordType = "Type of records"
-        val recordTypeTooltip = """
-            |<html>
-            |<p>consumption occasion, mean of consumption, quantified and described as
-            |<p>eaten, recipes for self-made
-            |</html>
-            """.trimMargin()
-
-        val foodDescription = "Food assayDescription"
-        val foodDescriptionTooltip = "use foodex2 facets"
-    }
-
-    // fields. null if advanced
-    val dataCollectionToolField = AutoSuggestField(10)
-    val nonConsecutiveOneDayTextField = JTextField(30)
-    val dietarySoftwareToolTextField = if (isAdvanced) JTextField(30) else null
-    val foodItemNumberTextField = if (isAdvanced) JTextField(30) else null
-    val recordTypeTextField = if (isAdvanced) JTextField(30) else null
-    val foodDescriptorComboBox = if (isAdvanced) JComboBox<String>() else null
-
-    init {
-
-        // Populate interface with passed `dietaryAssessmentMethod`
-        dietaryAssessmentMethod?.let {
-            dataCollectionToolField.selectedItem = it.collectionTool
-            nonConsecutiveOneDayTextField.text = it.numberOfNonConsecutiveOneDay.toString()
-            dietarySoftwareToolTextField?.text = it.softwareTool
-            foodItemNumberTextField?.text = it.numberOfFoodItems[0]
-            recordTypeTextField?.text = it.recordTypes[0]
-            foodDescriptorComboBox?.selectedItem = it.foodDescriptors[0]
-        }
-
-        initUI()
-    }
-
-    private fun initUI() {
-
-        // Create labels
-        val dataCollectionToolLabel = createLabel(text = dataCollectionTool, tooltip = dataCollectionToolTooltip)
-        val nonConsecutiveOneDayLabel = createLabel(text = nonConsecutiveOneDays, tooltip = nonConsecutiveOneDayTooltip)
-        val dietarySoftwareToolLabel = createLabel(text = dietarySoftwareTool, tooltip = dietarySoftwareTooltip)
-        val foodItemNumberLabel = createLabel(text = foodItemNumber, tooltip = foodItemNumberTooltip)
-        val recordTypeLabel = createLabel(text = recordType, tooltip = recordTypeTooltip)
-        val foodDescriptionLabel = createLabel(text = foodDescription, tooltip = foodDescriptionTooltip)
-
-        // init combo boxes
-        dataCollectionToolField.setPossibleValues(vocabs["Method. tool to collect data"])
-        foodDescriptorComboBox?.let { vocabs["Food descriptors"]?.forEach(it::addItem) }
-
-        val pairList = mutableListOf<Pair<JLabel, JComponent>>()
-        pairList.add(Pair(first = dataCollectionToolLabel, second = dataCollectionToolField))
-        pairList.add(Pair(first = nonConsecutiveOneDayLabel, second = nonConsecutiveOneDayTextField))
-        dietarySoftwareToolTextField?.let { pairList.add(Pair(first = dietarySoftwareToolLabel, second = it)) }
-        foodItemNumberTextField?.let { pairList.add(Pair(first = foodItemNumberLabel, second = it)) }
-        recordTypeTextField?.let { pairList.add(Pair(first = recordTypeLabel, second = it)) }
-        foodDescriptorComboBox?.let { pairList.add(Pair(first = foodDescriptionLabel, second = it)) }
-
-        addGridComponents(pairs = pairList)
-    }
-
-    fun toDietaryAssessmentMethod(): DietaryAssessmentMethod {
-
-        // TODO: cast temporarily null values to empty string and 0 (SHOULD be validated)
-        val dataCollectionTool = dataCollectionToolField.selectedItem as? String ?: ""
-        val nonConsecutiveOneDays = nonConsecutiveOneDayTextField.text?.toIntOrNull() ?: 0
-
-        val method = DietaryAssessmentMethod(collectionTool = dataCollectionTool, numberOfNonConsecutiveOneDay = nonConsecutiveOneDays)
-        method.softwareTool = dietarySoftwareToolTextField?.text
-        foodItemNumberTextField?.text?.let { method.numberOfFoodItems.add(it) }
-        recordTypeTextField?.text?.let { method.recordTypes.add(it) }
-        method.foodDescriptors.addAll(foodDescriptorComboBox?.selectedObjects as Array<String>)
-
-        return method
-    }
-}
-
-class EditAssayPanel(assay: Assay? = null, isAdvanced: Boolean) : JPanel(GridBagLayout()) {
-
-    companion object {
-        val assayName = "Name"
-        val assayNameTooltip = "A name given to the assay"
-
-        val assayDescription = "Description"
-        val assayDescriptionTooltip = "General description of the assay. Corresponds to the Protocol REF in ISA"
-    }
-
-    val nameTextField = JTextField(30)
-    val descriptionTextArea = if (isAdvanced) JTextArea(5, 30) else null
-
-    init {
-
-        // Populate UI with passed `assay`
-        assay?.let {
-            nameTextField.text = it.name
-            descriptionTextArea?.text = it.description
-        }
-
-        initUI()
-    }
-
-    private fun initUI() {
-        val nameLabel = createLabel(text = assayName, tooltip = assayNameTooltip)
-        val descriptionLabel = createLabel(text = assayDescription, tooltip = assayDescriptionTooltip)
-
-        val pairList = mutableListOf<Pair<JLabel, JComponent>>()
-        pairList.add(Pair(first = nameLabel, second = nameTextField))
-        descriptionTextArea?.let { Pair(first = descriptionLabel, second = it) }
-
-        addGridComponents(pairs = pairList)
-    }
-
-    fun toAssay() = Assay(name = nameTextField.text, description = descriptionTextArea?.text)
 }
 
 class ModelMathPanel(modelMath: ModelMath? = null) : Box(BoxLayout.PAGE_AXIS) {
