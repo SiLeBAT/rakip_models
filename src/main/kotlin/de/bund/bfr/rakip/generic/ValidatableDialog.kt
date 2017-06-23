@@ -6,11 +6,13 @@ import javax.swing.JOptionPane
 import javax.swing.WindowConstants
 
 
-class ValidatableDialog(panel: ValidatablePanel) : JDialog(null as Frame?, true) {
+class ValidatableDialog(panel: ValidatablePanel, dialogTitle: String) : JDialog(null as Frame?, true) {
 
     private val optionPane = JOptionPane(panel, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_OPTION)
 
     init {
+
+        title = dialogTitle
 
         // Handle window closing correctly
         defaultCloseOperation = WindowConstants.DISPOSE_ON_CLOSE

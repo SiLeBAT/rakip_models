@@ -70,7 +70,7 @@ fun readVocabFromSheet(workbook: Workbook, sheetname: String): Set<String> {
 
     val sheet = workbook.getSheet(sheetname)
     if (sheet == null) {
-        logger.warning("Spreadsheet not found: ${sheetname}")
+        logger.warning("Spreadsheet not found: $sheetname")
         return emptySet<String>()
     }
 
@@ -454,8 +454,7 @@ class ReferencePanel(val refs: MutableList<Record>, var isAdvanced: Boolean) : J
         buttonsPanel.addButton.addActionListener { _ ->
             val editPanel = EditReferencePanel(isAdvanced = isAdvanced)
 
-            val dlg = ValidatableDialog(panel = editPanel)
-            dlg.title = "Create reference"
+            val dlg = ValidatableDialog(panel = editPanel, dialogTitle = "Create reference")
             dlg.isVisible = true
             if (dlg.getValue() == JOptionPane.OK_OPTION) {
                 dtm.addRow(arrayOf(editPanel.toRecord()))
@@ -469,8 +468,7 @@ class ReferencePanel(val refs: MutableList<Record>, var isAdvanced: Boolean) : J
 
                 val editPanel = EditReferencePanel(ref, isAdvanced = isAdvanced)
 
-                val dlg = ValidatableDialog(panel = editPanel)
-                dlg.title = "Modify reference"
+                val dlg = ValidatableDialog(panel = editPanel, dialogTitle = "Modify reference")
                 dlg.isVisible = true
                 if (dlg.getValue() == JOptionPane.OK_OPTION) {
                     dtm.setValueAt(editPanel.toRecord(), rowToEdit, 0)
@@ -656,8 +654,7 @@ class ScopePanel(val scope: Scope) : Box(BoxLayout.PAGE_AXIS) {
         productButton.addActionListener { _ ->
             val editPanel = EditProductPanel(product = scope.product,
                     isAdvanced = advancedCheckBox.isSelected)
-            val dlg = ValidatableDialog(panel = editPanel)
-            dlg.title = "Create a product"
+            val dlg = ValidatableDialog(panel = editPanel, dialogTitle = "Create a product")
             dlg.isVisible = true
 
             if (dlg.getValue() == JOptionPane.OK_OPTION) {
@@ -671,8 +668,7 @@ class ScopePanel(val scope: Scope) : Box(BoxLayout.PAGE_AXIS) {
         hazardButton.addActionListener { _ ->
             val editPanel = EditHazardPanel(hazard = scope.hazard,
                     isAdvanced = advancedCheckBox.isSelected)
-            val dlg = ValidatableDialog(panel = editPanel)
-            dlg.title = "Create a hazard"
+            val dlg = ValidatableDialog(panel = editPanel, dialogTitle = "Create a hazard")
             dlg.isVisible = true
 
             if (dlg.getValue() == JOptionPane.OK_OPTION) {
@@ -686,8 +682,7 @@ class ScopePanel(val scope: Scope) : Box(BoxLayout.PAGE_AXIS) {
         populationButton.addActionListener { _ ->
             val editPanel = EditPopulationGroupPanel(populationGroup = scope.populationGroup, isAdvanced = advancedCheckBox.isSelected)
 
-            val dlg = ValidatableDialog(panel = editPanel)
-            dlg.title = "Create a Population Group"
+            val dlg = ValidatableDialog(panel = editPanel, dialogTitle = "Create a Population Group")
             dlg.isVisible = true
 
             if (dlg.getValue() == JOptionPane.OK_OPTION) {
@@ -744,8 +739,7 @@ class DataBackgroundPanel(var dataBackground: DataBackground? = null) : Box(BoxL
         studySampleButton.addActionListener { _ ->
             val editPanel = EditStudySamplePanel(studySample = dataBackground?.studySample, isAdvanced = advancedCheckBox.isSelected)
 
-            val dlg = ValidatableDialog(panel = editPanel)
-            dlg.title = "Create Study sample"
+            val dlg = ValidatableDialog(panel = editPanel, dialogTitle = "Create Study sample")
             dlg.isVisible = true
 
             if (dlg.getValue() == JOptionPane.OK_OPTION) {
@@ -762,8 +756,7 @@ class DataBackgroundPanel(var dataBackground: DataBackground? = null) : Box(BoxL
             val editPanel = EditDietaryAssessmentMethodPanel(
                     dietaryAssessmentMethod = dataBackground?.dietaryAssessmentMethod, isAdvanced = advancedCheckBox.isSelected)
 
-            val dlg = ValidatableDialog(panel = editPanel)
-            dlg.title = "Create dietary assessment method"
+            val dlg = ValidatableDialog(panel = editPanel, dialogTitle = "Create dietary assessment method")
             dlg.isVisible = true
             if (dlg.getValue() == JOptionPane.OK_OPTION) {
                 val dietaryAssessmentMethod = editPanel.toDietaryAssessmentMethod()
@@ -780,8 +773,7 @@ class DataBackgroundPanel(var dataBackground: DataBackground? = null) : Box(BoxL
         assayButton.addActionListener { _ ->
             val editPanel = EditAssayPanel(assay = dataBackground?.assay, isAdvanced = advancedCheckBox.isSelected)
 
-            val dlg = ValidatableDialog(panel = editPanel)
-            dlg.title = "Create assay"
+            val dlg = ValidatableDialog(panel = editPanel, dialogTitle = "Create assay")
             dlg.isVisible = true
             if (dlg.getValue() == JOptionPane.OK_OPTION) {
                 val assay = editPanel.toAssay()
@@ -1088,8 +1080,7 @@ class ParameterPanel(val parameters: MutableList<Parameter> = mutableListOf(), i
         buttonsPanel.addButton.addActionListener { _ ->
             val editPanel = EditParameterPanel(isAdvanced = isAdvanced)
 
-            val dlg = ValidatableDialog(panel = editPanel)
-            dlg.title = "Create parameter"
+            val dlg = ValidatableDialog(panel = editPanel, dialogTitle = "Create parameter")
             dlg.isVisible = true
             if (dlg.getValue() == JOptionPane.OK_OPTION) {
                 // FIXME: Uncomment once EditParameterPanel.toParameter is implemented
@@ -1160,8 +1151,7 @@ class ModelEquationsPanel(
         buttonsPanel.addButton.addActionListener { _ ->
             val editPanel = EditModelEquationPanel(isAdvanced = isAdvanced)
 
-            val dlg = ValidatableDialog(panel = editPanel)
-            dlg.title = "Create equation"
+            val dlg = ValidatableDialog(panel = editPanel, dialogTitle = "Create equation")
             dlg.isVisible = true
             if (dlg.getValue() == JOptionPane.OK_OPTION) {
                 // TODO: process result
@@ -1175,8 +1165,7 @@ class ModelEquationsPanel(
 
                 val editPanel = EditModelEquationPanel(equation = equation, isAdvanced = isAdvanced)
 
-                val dlg  = ValidatableDialog(panel = editPanel)
-                dlg.title = "Modify equation"
+                val dlg  = ValidatableDialog(panel = editPanel, dialogTitle = "Modify equation")
                 dlg.isVisible = true
 
                 if (dlg.getValue() == JOptionPane.OK_OPTION) {
