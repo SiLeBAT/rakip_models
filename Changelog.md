@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.0.0a3] - 2017-06-30
+### Added
+- Process model
+
 ## [0.0.0a2] - 2017-06-27
 ### Added
 - OtherEmpiricalModel
