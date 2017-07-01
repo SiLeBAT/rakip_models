@@ -226,7 +226,7 @@ data class Parameter(
         var source: String? = null,
         var subject: String? = null,
         var distribution: String? = null,
-        var varue: String? = null,
+        var value: String? = null,
         var reference: String? = null,
         var variabilitySubject: String? = null,
         val modelApplicability: MutableList<String> = mutableListOf(),

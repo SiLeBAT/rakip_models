@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.0.1a3] - 2017-07-01
+### Changed
+- Typo in generic.kt. `Parameter.varue` -> `Parameter.value`
+
 ## [0.0.0a3] - 2017-06-30
 ### Added
 - Process model
