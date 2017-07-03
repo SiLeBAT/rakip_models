@@ -20,8 +20,8 @@ group 'de.bund.bfr'
 version '0.0.2a3'
 
 repositories {
+    maven { url "http://dl.bintray.com/silebat/RAKIP" }
     mavenCentral()
-    flatDir { dirs 'deps' }
 }
 
 dependencies {
@@ -29,7 +29,7 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.8.7"
     compile 'com.googlecode.ez-vcard:ez-vcard:0.10.2'
-    compile name: 'jris-1.0.0'
+    compile 'com.gmail.gcolaianni5:jris:1.0.0'
 }
 
 bintray {

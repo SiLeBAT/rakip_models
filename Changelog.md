@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.0.3a3] - 2017-07-03
+### Changed
+- Replaced local jar for RIS library with maven library
+
 ## [0.0.2a3] - 2017-07-03
 ### Added
 - Upload Gradle build to bintray (build.gradle)
