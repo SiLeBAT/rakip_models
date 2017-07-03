@@ -1,8 +1,5 @@
-group 'de.bund.bfr'
-version '0.0.1a3'
-
 buildscript {
-    ext.kotlin_version = '1.1.2-5'
+    ext.kotlin_version = '1.1.3'
 
     repositories {
         mavenCentral()
@@ -12,11 +9,46 @@ buildscript {
     }
 }
 
+plugins {
+    id "com.jfrog.bintray" version "1.7"
+}
+
 apply plugin: 'kotlin'
+apply plugin: 'maven-publish'
+
+group 'de.bund.bfr'
+version '0.0.2a3'
 
 repositories {
     mavenCentral()
     flatDir { dirs 'deps' }
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.8.7"
+    compile 'com.googlecode.ez-vcard:ez-vcard:0.10.2'
+    compile name: 'jris-1.0.0'
+}
+
+bintray {
+    user = 'XXX'
+    key = 'XXX'
+    publications = ['MyPublication']
+    publish = true
+
+    pkg {
+        repo = 'RAKIP'
+        name = 'rakip_models'
+        userOrg = 'silebat'
+
+        version {
+            name = project.version
+            released = new Date()
+            vcsTag = "v${project.version}"
+        }
+    }
 }
 
 task getDeps(type: Copy) {
@@ -35,14 +67,21 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 }
 
 artifacts {
-    archives sourcesJar
-    archives javadocJar
+    archives sourcesJar, javadocJar
 }
 
-dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.8.7"
-    compile 'com.googlecode.ez-vcard:ez-vcard:0.10.2'
-    compile name: 'jris-1.0.0'
+publishing {
+    publications {
+        MyPublication(MavenPublication) {
+            artifactId project.bintray.pkg.name
+            from components.java
+
+            artifact sourcesJar {
+                classifier = 'sources'
+            }
+            artifact javadocJar {
+                classifier = 'javadoc'
+            }
+        }
+    }
 }
