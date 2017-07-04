@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.0.0a7] - 2017-07-04
+### Added
+- Toxicological reference value model
+
 ## [0.0.0a6] - 2017-07-04
 ### Added
 - Dose response model
