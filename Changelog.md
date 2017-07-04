@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.0.0a5] - 2017-07-04
+### Added
+- Exposure model
+
+### Changed
+- Used options for `bintrayUser` and `bintrayKey` stored in the `gradle.properties` file under `User/.gradle`.
+
 ## [0.0.0a4] - 2017-07-04
 ### Added
 - Consumption model
