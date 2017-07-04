@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.0.0a8] - 2017-07-04
+### Added
+- Health metrics model
+- QRA model
+
+### Changed
+- Simplify Toxicological reference value model
+- Simplify Dose response model
+- Simplify Exposure model
+- Simplify Consumption model
+- Simplify QRA model
+
 ## [0.0.0a7] - 2017-07-04
 ### Added
 - Toxicological reference value model

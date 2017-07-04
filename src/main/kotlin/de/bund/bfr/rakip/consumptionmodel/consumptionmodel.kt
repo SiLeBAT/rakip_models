@@ -1,11 +1,6 @@
 package de.bund.bfr.rakip.consumptionmodel
 
-import com.gmail.gcolaianni5.jris.bean.Record
 import de.bund.bfr.rakip.generic.*
-import ezvcard.VCard
-import java.net.URL
-import java.util.*
-
 
 data class ConsumptionModel(
         var generalInformation: GeneralInformation,
@@ -15,27 +10,6 @@ data class ConsumptionModel(
         var simulation: Simulation? = null
 )
 
-data class GeneralInformation(
-        var name: String,
-        var source: String? = null,
-        var identifier: String,
-        val creators: MutableList<VCard> = mutableListOf(),
-        var creationDate: Date,
-        val modificationDate: MutableList<Date> = mutableListOf(),
-        var rights: String,
-        var isAvailable: Boolean,
-        var url: URL? = null,
-        var format: String? = null,
-        val reference: MutableList<Record> = mutableListOf(),
-        var language: String? = null,
-        var software: String? = null,
-        var languageWrittenIn: String? = null,
-        var modelCategory: ModelCategory? = null,
-        var status: String? = null,
-        var objective: String? = null,
-        var description: String? = null
-)
-
 data class Scope(
         var product: Product,
         var populationGroup: PopulationGroup,
@@ -43,14 +17,6 @@ data class Scope(
         var temporalInformation: String? = null,
         val region: MutableList<String> = mutableListOf(),
         val country: MutableList<String> = mutableListOf()
-)
-
-data class DataBackground(
-        var study: Study,
-        var studySample: StudySample? = null,
-        var dietaryAssessmentMethod: DietaryAssessmentMethod? = null,
-        val laboratoryAccreditation: MutableList<String> = mutableListOf(),
-        var assay: Assay? = null
 )
 
 data class ModelMath(
