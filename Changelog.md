@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.0.0a4] - 2017-07-04
+### Added
+- Consumption model
+
 ## [0.0.3a3] - 2017-07-03
 ### Changed
 - Replaced local jar for RIS library with maven library
